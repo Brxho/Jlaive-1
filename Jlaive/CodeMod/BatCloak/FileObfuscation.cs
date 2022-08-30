@@ -11,7 +11,7 @@ namespace BatCloak
         public string Process(string contents, int level)
         {
             List<string> lines = new List<string>(contents.Split(new string[] { Environment.NewLine }, StringSplitOptions.None));
-            lines.Insert(0, "rem https://github.com/qleex/Jlaive");
+            lines.Insert(0, "rem https://github.com/ch2sh/Jlaive");
             StringBuilder builder = new StringBuilder();
             LineObfuscation obfuscator = new LineObfuscation(level);
             builder.AppendLine("@echo off");

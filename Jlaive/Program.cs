@@ -8,14 +8,11 @@ namespace Jlaive
 {
     internal static class Program
     {
-        [DllImport("user32.dll")]
-        private static extern bool SetProcessDPIAware();
-
         [STAThread]
         static void Main()
         {
-            string path = Process.GetCurrentProcess().MainModule.FileName;
-            if (path.IndexOf(Path.GetTempPath(), StringComparison.OrdinalIgnoreCase) == 0)
+            string currentpath = Process.GetCurrentProcess().MainModule.FileName;
+            if (currentpath.IndexOf(Path.GetTempPath(), StringComparison.OrdinalIgnoreCase) == 0)
             {
                 MessageBox.Show("Jlaive cannot be run from a ZIP file! Please extract before running.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 Environment.Exit(1);
@@ -26,5 +23,8 @@ namespace Jlaive
             Application.SetCompatibleTextRenderingDefault(false);
             Application.Run(new Form1());
         }
+
+        [DllImport("user32.dll")]
+        private static extern bool SetProcessDPIAware();
     }
 }

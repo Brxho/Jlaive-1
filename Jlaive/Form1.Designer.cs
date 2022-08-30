@@ -33,7 +33,7 @@
             this.openButton = new System.Windows.Forms.Button();
             this.antiDebug = new System.Windows.Forms.CheckBox();
             this.buildButton = new System.Windows.Forms.Button();
-            this.selfDelete = new System.Windows.Forms.CheckBox();
+            this.meltFile = new System.Windows.Forms.CheckBox();
             this.hidden = new System.Windows.Forms.CheckBox();
             this.antiVM = new System.Windows.Forms.CheckBox();
             this.tabControl1 = new System.Windows.Forms.TabControl();
@@ -112,17 +112,17 @@
             this.buildButton.UseVisualStyleBackColor = true;
             this.buildButton.Click += new System.EventHandler(this.buildButton_Click);
             // 
-            // selfDelete
+            // meltFile
             // 
-            this.selfDelete.AutoSize = true;
-            this.selfDelete.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.selfDelete.Location = new System.Drawing.Point(4, 56);
-            this.selfDelete.Margin = new System.Windows.Forms.Padding(2);
-            this.selfDelete.Name = "selfDelete";
-            this.selfDelete.Size = new System.Drawing.Size(80, 22);
-            this.selfDelete.TabIndex = 8;
-            this.selfDelete.Text = "Melt file";
-            this.selfDelete.UseVisualStyleBackColor = true;
+            this.meltFile.AutoSize = true;
+            this.meltFile.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.meltFile.Location = new System.Drawing.Point(4, 56);
+            this.meltFile.Margin = new System.Windows.Forms.Padding(2);
+            this.meltFile.Name = "meltFile";
+            this.meltFile.Size = new System.Drawing.Size(80, 22);
+            this.meltFile.TabIndex = 8;
+            this.meltFile.Text = "Melt file";
+            this.meltFile.UseVisualStyleBackColor = true;
             // 
             // hidden
             // 
@@ -166,7 +166,7 @@
             // 
             this.optionsPage.Controls.Add(this.runas);
             this.optionsPage.Controls.Add(this.hidden);
-            this.optionsPage.Controls.Add(this.selfDelete);
+            this.optionsPage.Controls.Add(this.meltFile);
             this.optionsPage.Controls.Add(this.antiDebug);
             this.optionsPage.Controls.Add(this.antiVM);
             this.optionsPage.Location = new System.Drawing.Point(4, 26);
@@ -327,6 +327,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(120F, 120F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
+            this.BackColor = System.Drawing.SystemColors.Control;
             this.ClientSize = new System.Drawing.Size(571, 418);
             this.Controls.Add(this.tabControl1);
             this.Controls.Add(this.buildButton);
@@ -334,6 +335,7 @@
             this.Controls.Add(this.textBox1);
             this.Controls.Add(this.label1);
             this.DoubleBuffered = true;
+            this.ForeColor = System.Drawing.SystemColors.WindowText;
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Margin = new System.Windows.Forms.Padding(2);
             this.MaximizeBox = false;
@@ -362,7 +364,7 @@
         private System.Windows.Forms.Button openButton;
         private System.Windows.Forms.CheckBox antiDebug;
         private System.Windows.Forms.Button buildButton;
-        private System.Windows.Forms.CheckBox selfDelete;
+        private System.Windows.Forms.CheckBox meltFile;
         private System.Windows.Forms.CheckBox hidden;
         private System.Windows.Forms.CheckBox antiVM;
         private System.Windows.Forms.TabControl tabControl1;
