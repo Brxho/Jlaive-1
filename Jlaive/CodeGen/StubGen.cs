@@ -46,7 +46,7 @@ namespace Jlaive
         {
             var replacements = new Dictionary<string, string> {
                 { "FromBase64String", "('gnirtS46esaBmorF'[-1..-16] -join '')" },
-                { "ReadAllText", "('gnirtS46esaBmorF'[-1..-16] -join '')" },
+                { "ReadAllText", "('txeTllAdaeR'[-1..-11] -join '')" },
                 { "Load", "('daoL'[-1..-4] -join '')" },
                 { "DECRYPTION_KEY", Convert.ToBase64String(Key) },
                 { "DECRYPTION_IV", Convert.ToBase64String(IV) },
