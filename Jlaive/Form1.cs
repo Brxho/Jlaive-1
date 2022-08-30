@@ -1,4 +1,5 @@
 ﻿using System;
+using System.CodeDom.Compiler;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -118,7 +119,9 @@ namespace Jlaive
             {
                 File.Delete("payload.exe");
                 if (!isnetasm) File.Delete("runpe.dll");
-                MessageBox.Show($"Stub build errors:{Environment.NewLine}{string.Join(Environment.NewLine, result.CompilerResults.Errors.Cast<string>())}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                List<string> errors = new List<string>();
+                foreach (CompilerError error in result.CompilerResults.Errors) errors.Add(error.ErrorText);
+                MessageBox.Show($"Stub build errors:{Environment.NewLine}{string.Join(Environment.NewLine, errors)}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 buildButton.Enabled = true;
                 return;
             }

