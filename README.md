@@ -4,6 +4,8 @@ Jlaive is an antivirus evasion tool (crypter) that converts executables into und
 
 [Download the latest compiled version.](https://gitlab.com/ch2sh/Jlaive/-/raw/main/Jlaive.zip)
 
+[Join the Discord server](https://discord.gg/Wu8DKzk5xP) for discussion and enquiries.
+
 ## Features
 
 - .NET/Native (x64) support
