@@ -29,7 +29,7 @@
         private void InitializeComponent()
         {
             this.label1 = new System.Windows.Forms.Label();
-            this.textBox1 = new System.Windows.Forms.TextBox();
+            this.input = new System.Windows.Forms.TextBox();
             this.openButton = new System.Windows.Forms.Button();
             this.antiDebug = new System.Windows.Forms.CheckBox();
             this.buildButton = new System.Windows.Forms.Button();
@@ -48,9 +48,9 @@
             this.binderPage = new System.Windows.Forms.TabPage();
             this.removeFile = new System.Windows.Forms.Button();
             this.addFile = new System.Windows.Forms.Button();
-            this.listBox1 = new System.Windows.Forms.ListBox();
+            this.bindedFiles = new System.Windows.Forms.ListBox();
             this.outputPage = new System.Windows.Forms.TabPage();
-            this.listBox2 = new System.Windows.Forms.ListBox();
+            this.log = new System.Windows.Forms.ListBox();
             this.tabControl1.SuspendLayout();
             this.optionsPage.SuspendLayout();
             this.encryptionPage.SuspendLayout();
@@ -69,13 +69,13 @@
             this.label1.TabIndex = 0;
             this.label1.Text = "File path:";
             // 
-            // textBox1
+            // input
             // 
-            this.textBox1.Location = new System.Drawing.Point(12, 35);
-            this.textBox1.Margin = new System.Windows.Forms.Padding(2);
-            this.textBox1.Name = "textBox1";
-            this.textBox1.Size = new System.Drawing.Size(469, 22);
-            this.textBox1.TabIndex = 1;
+            this.input.Location = new System.Drawing.Point(12, 35);
+            this.input.Margin = new System.Windows.Forms.Padding(2);
+            this.input.Name = "input";
+            this.input.Size = new System.Drawing.Size(469, 22);
+            this.input.TabIndex = 1;
             // 
             // openButton
             // 
@@ -259,7 +259,7 @@
             // 
             this.binderPage.Controls.Add(this.removeFile);
             this.binderPage.Controls.Add(this.addFile);
-            this.binderPage.Controls.Add(this.listBox1);
+            this.binderPage.Controls.Add(this.bindedFiles);
             this.binderPage.Location = new System.Drawing.Point(4, 26);
             this.binderPage.Margin = new System.Windows.Forms.Padding(2);
             this.binderPage.Name = "binderPage";
@@ -291,19 +291,19 @@
             this.addFile.UseVisualStyleBackColor = true;
             this.addFile.Click += new System.EventHandler(this.addFile_Click);
             // 
-            // listBox1
+            // bindedFiles
             // 
-            this.listBox1.FormattingEnabled = true;
-            this.listBox1.ItemHeight = 17;
-            this.listBox1.Location = new System.Drawing.Point(2, 5);
-            this.listBox1.Margin = new System.Windows.Forms.Padding(2);
-            this.listBox1.Name = "listBox1";
-            this.listBox1.Size = new System.Drawing.Size(532, 208);
-            this.listBox1.TabIndex = 0;
+            this.bindedFiles.FormattingEnabled = true;
+            this.bindedFiles.ItemHeight = 17;
+            this.bindedFiles.Location = new System.Drawing.Point(2, 5);
+            this.bindedFiles.Margin = new System.Windows.Forms.Padding(2);
+            this.bindedFiles.Name = "bindedFiles";
+            this.bindedFiles.Size = new System.Drawing.Size(532, 208);
+            this.bindedFiles.TabIndex = 0;
             // 
             // outputPage
             // 
-            this.outputPage.Controls.Add(this.listBox2);
+            this.outputPage.Controls.Add(this.log);
             this.outputPage.Location = new System.Drawing.Point(4, 26);
             this.outputPage.Margin = new System.Windows.Forms.Padding(2);
             this.outputPage.Name = "outputPage";
@@ -313,15 +313,15 @@
             this.outputPage.Text = "Output";
             this.outputPage.UseVisualStyleBackColor = true;
             // 
-            // listBox2
+            // log
             // 
-            this.listBox2.FormattingEnabled = true;
-            this.listBox2.ItemHeight = 17;
-            this.listBox2.Location = new System.Drawing.Point(4, 4);
-            this.listBox2.Margin = new System.Windows.Forms.Padding(2);
-            this.listBox2.Name = "listBox2";
-            this.listBox2.Size = new System.Drawing.Size(532, 242);
-            this.listBox2.TabIndex = 4;
+            this.log.FormattingEnabled = true;
+            this.log.ItemHeight = 17;
+            this.log.Location = new System.Drawing.Point(4, 4);
+            this.log.Margin = new System.Windows.Forms.Padding(2);
+            this.log.Name = "log";
+            this.log.Size = new System.Drawing.Size(532, 242);
+            this.log.TabIndex = 4;
             // 
             // Form1
             // 
@@ -332,7 +332,7 @@
             this.Controls.Add(this.tabControl1);
             this.Controls.Add(this.buildButton);
             this.Controls.Add(this.openButton);
-            this.Controls.Add(this.textBox1);
+            this.Controls.Add(this.input);
             this.Controls.Add(this.label1);
             this.DoubleBuffered = true;
             this.ForeColor = System.Drawing.SystemColors.WindowText;
@@ -360,7 +360,7 @@
         #endregion
 
         private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.TextBox textBox1;
+        private System.Windows.Forms.TextBox input;
         private System.Windows.Forms.Button openButton;
         private System.Windows.Forms.CheckBox antiDebug;
         private System.Windows.Forms.Button buildButton;
@@ -376,11 +376,11 @@
         private System.Windows.Forms.TextBox key;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.Button addFile;
-        private System.Windows.Forms.ListBox listBox1;
+        private System.Windows.Forms.ListBox bindedFiles;
         private System.Windows.Forms.TextBox iv;
         private System.Windows.Forms.Button refreshKeys;
         private System.Windows.Forms.Button removeFile;
-        private System.Windows.Forms.ListBox listBox2;
+        private System.Windows.Forms.ListBox log;
         private System.Windows.Forms.CheckBox runas;
     }
 }

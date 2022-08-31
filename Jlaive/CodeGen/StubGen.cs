@@ -68,11 +68,11 @@ namespace Jlaive
 
         public string CreateCS(bool antidebug, bool antivm, bool meltfile, bool native)
         {
-            string stub = string.Empty;
-            if (antidebug) stub += "#define ANTI_DEBUG\n";
-            if (antivm) stub += "#define ANTI_VM\n";
-            if (native) stub += "#define USE_RUNPE\n";
-            if (meltfile) stub += "#define MELT_FILE\n";
+            StringBuilder builder = new StringBuilder();
+            if (antidebug) builder.AppendLine("#define ANTI_DEBUG");
+            if (antivm) builder.AppendLine("#define ANTI_VM");
+            if (native) builder.AppendLine("#define USE_RUNPE");
+            if (meltfile) builder.AppendLine("#define MELT_FILE");
             var replacements = new Dictionary<string, string> {
                 { "namespace_name", RandomString(20, rng) },
                 { "class_name", RandomString(20, rng) },
@@ -96,8 +96,8 @@ namespace Jlaive
                 { "key_str", Convert.ToBase64String(Key) },
                 { "iv_str", Convert.ToBase64String(IV) }
             };
-            stub += replacements.Aggregate(GetEmbeddedString("Jlaive.Resources.Stub.cs"), (c, r) => c.Replace(r.Key, r.Value));
-            return stub;
+            builder.AppendLine(replacements.Aggregate(GetEmbeddedString("Jlaive.Resources.Stub.cs"), (c, r) => c.Replace(r.Key, r.Value)));
+            return builder.ToString();
         }
     }
 }

