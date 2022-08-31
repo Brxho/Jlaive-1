@@ -1,6 +1,6 @@
 # Jlaive
 
-Jlaive is an antivirus evasion tool (crypter) that converts executables into undetectable batch files.
+Jlaive is an antivirus evasion tool (crypter) that converts executables into undetectable batch files. [Download the latest compiled version.](https://gitlab.com/ch2sh/Jlaive/-/raw/main/Jlaive.zip)
 
 Warning: There have been cases of people attempting to sell versions of Jlaive on certain forums. Be wary of any "fud batch file methods" you may see out there.
 
