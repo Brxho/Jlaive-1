@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-
 using dnlib.DotNet;
 using dnlib.DotNet.Emit;
 
@@ -14,6 +13,8 @@ namespace Jlaive
         public static byte[] Fix(byte[] input)
         {
             ModuleDefMD module = ModuleDefMD.Load(input);
+            MethodDef replace = GetSystemMethod(typeof(string), "Replace", 1);
+            MethodDef getexecutingassembly = GetSystemMethod(typeof(Assembly), "GetExecutingAssembly");
             foreach (TypeDef type in module.GetTypes())
             {
                 if (type.IsGlobalModuleType) continue;
@@ -27,26 +28,26 @@ namespace Jlaive
                         {
                             instr.Insert(i + 1, OpCodes.Ldstr.ToInstruction(".bat.exe"));
                             instr.Insert(i + 2, OpCodes.Ldstr.ToInstruction(".bat"));
-                            instr.Insert(i + 3, OpCodes.Callvirt.ToInstruction(method.Module.Import(GetSystemMethod(typeof(string), "Replace", 1))));
+                            instr.Insert(i + 3, OpCodes.Callvirt.ToInstruction(method.Module.Import(replace)));
                             i += 3;
                         }
                         else if (instr[i].ToString().Contains("System.Diagnostics.ProcessModule::get_FileName()"))
                         {
                             instr.Insert(i + 1, OpCodes.Ldstr.ToInstruction(".bat.exe"));
                             instr.Insert(i + 2, OpCodes.Ldstr.ToInstruction(".bat"));
-                            instr.Insert(i + 3, OpCodes.Callvirt.ToInstruction(method.Module.Import(GetSystemMethod(typeof(string), "Replace", 1))));
+                            instr.Insert(i + 3, OpCodes.Callvirt.ToInstruction(method.Module.Import(replace)));
                             i += 3;
                         }
                         else if (instr[i].ToString().Contains("System.Reflection.Assembly::get_Location()"))
                         {
                             instr.Insert(i + 1, OpCodes.Ldstr.ToInstruction(".bat.exe"));
                             instr.Insert(i + 2, OpCodes.Ldstr.ToInstruction(".bat"));
-                            instr.Insert(i + 3, OpCodes.Callvirt.ToInstruction(method.Module.Import(GetSystemMethod(typeof(string), "Replace", 1))));
+                            instr.Insert(i + 3, OpCodes.Callvirt.ToInstruction(method.Module.Import(replace)));
                             i += 3;
                         }
                         else if (instr[i].ToString().Contains("System.Reflection.Assembly::GetEntryAssembly()"))
                         {
-                            instr[i] = OpCodes.Call.ToInstruction(method.Module.Import(GetSystemMethod(typeof(Assembly), "GetExecutingAssembly")));
+                            instr[i] = OpCodes.Call.ToInstruction(method.Module.Import(getexecutingassembly));
                         }
                     }
                     method.Body.SimplifyBranches();

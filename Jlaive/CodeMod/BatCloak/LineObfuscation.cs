@@ -1,5 +1,6 @@
-﻿// Modified https://github.com/ch2sh/BatCloak
+﻿// Modified https://gitlab.com/ch2sh/BatCloak
 
+using Jlaive;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,18 +22,17 @@ namespace BatCloak
 
         private string setvar { get; }
         private string equalsvar { get; }
-        private List<string> usedstrings { get; }
         private Random rng { get; }
-        private const string chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        private RandomString rngstr { get; }
 
         public LineObfuscation(int level)
         {
             Variables = new List<string>();
             Level = level;
             rng = new Random();
-            usedstrings = new List<string>();
-            setvar = RandomString(4);
-            equalsvar = RandomString(4);
+            rngstr = new RandomString(rng);
+            setvar = rngstr.Get(4);
+            equalsvar = rngstr.Get(4);
             StringBuilder builder = new StringBuilder();
             builder.AppendLine($"set \"{setvar}=set \"");
             builder.AppendLine($"%{setvar}%\"{equalsvar}==\"");
@@ -81,7 +81,7 @@ namespace BatCloak
                 if (i < Variables.Count) name = Variables[i];
                 else
                 {
-                    name = RandomString(10);
+                    name = rngstr.Get(10);
                     newvars.Add(name);
                 }
                 setlines.Add($"%{setvar}%\"{name}%{equalsvar}%{splitted[i]}\"");
@@ -90,18 +90,6 @@ namespace BatCloak
             Variables.AddRange(newvars);
             result.Sets = setlines.OrderBy(x => rng.Next()).ToArray();
             return result;
-        }
-
-        private string RandomString(int length)
-        {
-            string ret = string.Empty;
-            while (ret == string.Empty)
-            {
-                ret = new string(Enumerable.Repeat(chars, length).Select(s => s[rng.Next(s.Length)]).ToArray());
-                if (usedstrings.Contains(ret)) ret = string.Empty;
-            }
-            usedstrings.Add(ret);
-            return ret;
         }
     }
 }
