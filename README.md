@@ -15,12 +15,13 @@ Jlaive is an antivirus evasion tool (crypter) that converts executables into und
 - Bind files
 - AMSI bypass
 - ETW bypass
+- API unhooking
 
 ## Screenshots
 
-![image](https://i.imgur.com/7VIszrf.png)
+![image](https://i.imgur.com/4uMtm0U.png)
 
-![image](https://i.imgur.com/m5VmTrX.png)
+![image](https://i.imgur.com/p4ZPETk.png)
 
 [Demo video with DcRat (Windows 11 Microsoft Defender)](https://vimeo.com/746460746)
 
