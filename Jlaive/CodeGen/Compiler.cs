@@ -1,4 +1,5 @@
-﻿using System.CodeDom.Compiler;
+﻿using System;
+using System.CodeDom.Compiler;
 using System.IO;
 using Microsoft.CSharp;
 
@@ -29,14 +30,13 @@ namespace Jlaive
 
         public JCompilerResult Build(string source)
         {
-            string tempfile = Path.GetTempFileName();
+            string tempfile = $"{AppDomain.CurrentDomain.BaseDirectory}\\{new RandomString(new Random()).Get(6)}.tmp";
             CompilerParameters parameters = new CompilerParameters(References, tempfile)
             {
                 GenerateExecutable = true,
                 CompilerOptions = "-optimize",
                 IncludeDebugInformation = false
             };
-            parameters.EmbeddedResources.AddRange(Resources);
             CompilerResults results = CSC.CompileAssemblyFromSource(parameters, source); ;
             byte[] bytes = File.ReadAllBytes(tempfile);
             File.Delete(tempfile);

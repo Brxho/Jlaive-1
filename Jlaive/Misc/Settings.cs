@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Threading;
 using Newtonsoft.Json;
 
 namespace Jlaive
@@ -23,6 +24,7 @@ namespace Jlaive
         public bool selfDelete { get; set; }
         public bool hidden { get; set; }
         public bool runas { get; set; }
+        public bool apiUnhook { get; set; }
         public string[] bindedFiles { get; set; }
     }
 }

@@ -8,9 +8,34 @@ using dnlib.DotNet.Emit;
 
 namespace Jlaive
 {
+    internal struct PatcherResource
+    {
+        public string Name;
+        public byte[] Bytes;
+
+        public PatcherResource(string Name, byte[] Bytes)
+        {
+            this.Name = Name;
+            this.Bytes = Bytes;
+        }
+    }
+
     internal class Patcher
     {
-        public static byte[] Fix(byte[] input)
+        public static void AddResources(ref byte[] input, PatcherResource[] resources)
+        {
+            ModuleDefMD module = ModuleDefMD.Load(input);
+            foreach (PatcherResource resource in resources)
+            {
+                module.Resources.Add(new EmbeddedResource(resource.Name, resource.Bytes));
+            }
+            MemoryStream ms = new MemoryStream();
+            module.Write(ms);
+            input = ms.ToArray();
+            ms.Dispose();
+        }
+
+        public static void Fix(ref byte[] input)
         {
             ModuleDefMD module = ModuleDefMD.Load(input);
             MethodDef replace = GetSystemMethod(typeof(string), "Replace", 1);
@@ -55,9 +80,8 @@ namespace Jlaive
             }
             MemoryStream ms = new MemoryStream();
             module.Write(ms);
-            byte[] output = ms.ToArray();
+            input = ms.ToArray();
             ms.Dispose();
-            return output;
         }
 
         private static MethodDef GetSystemMethod(Type type, string name, int idx = 0)

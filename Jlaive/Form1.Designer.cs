@@ -51,6 +51,7 @@
             this.bindedFiles = new System.Windows.Forms.ListBox();
             this.outputPage = new System.Windows.Forms.TabPage();
             this.log = new System.Windows.Forms.ListBox();
+            this.unhookAPI = new System.Windows.Forms.CheckBox();
             this.tabControl1.SuspendLayout();
             this.optionsPage.SuspendLayout();
             this.encryptionPage.SuspendLayout();
@@ -96,9 +97,9 @@
             this.antiDebug.Location = new System.Drawing.Point(4, 4);
             this.antiDebug.Margin = new System.Windows.Forms.Padding(2);
             this.antiDebug.Name = "antiDebug";
-            this.antiDebug.Size = new System.Drawing.Size(101, 22);
+            this.antiDebug.Size = new System.Drawing.Size(98, 22);
             this.antiDebug.TabIndex = 6;
-            this.antiDebug.Text = "Anti Debug";
+            this.antiDebug.Text = "Anti debug";
             this.antiDebug.UseVisualStyleBackColor = true;
             // 
             // buildButton
@@ -164,6 +165,7 @@
             // 
             // optionsPage
             // 
+            this.optionsPage.Controls.Add(this.unhookAPI);
             this.optionsPage.Controls.Add(this.runas);
             this.optionsPage.Controls.Add(this.hidden);
             this.optionsPage.Controls.Add(this.meltFile);
@@ -323,6 +325,18 @@
             this.log.Size = new System.Drawing.Size(532, 242);
             this.log.TabIndex = 4;
             // 
+            // unhookAPI
+            // 
+            this.unhookAPI.AutoSize = true;
+            this.unhookAPI.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.unhookAPI.Location = new System.Drawing.Point(4, 134);
+            this.unhookAPI.Margin = new System.Windows.Forms.Padding(2);
+            this.unhookAPI.Name = "unhookAPI";
+            this.unhookAPI.Size = new System.Drawing.Size(125, 22);
+            this.unhookAPI.TabIndex = 12;
+            this.unhookAPI.Text = "API unhooking";
+            this.unhookAPI.UseVisualStyleBackColor = true;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(120F, 120F);
@@ -382,5 +396,6 @@
         private System.Windows.Forms.Button removeFile;
         private System.Windows.Forms.ListBox log;
         private System.Windows.Forms.CheckBox runas;
+        private System.Windows.Forms.CheckBox unhookAPI;
     }
 }

