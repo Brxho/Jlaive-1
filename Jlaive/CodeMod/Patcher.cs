@@ -8,18 +8,6 @@ using dnlib.DotNet.Emit;
 
 namespace Jlaive
 {
-    internal struct PatcherResource
-    {
-        public string Name;
-        public byte[] Bytes;
-
-        public PatcherResource(string Name, byte[] Bytes)
-        {
-            this.Name = Name;
-            this.Bytes = Bytes;
-        }
-    }
-
     internal class Patcher
     {
         public static void AddResources(ref byte[] input, PatcherResource[] resources)
@@ -102,6 +90,18 @@ namespace Jlaive
             }
             if (methods.Count > 0) return methods[idx];
             return null;
+        }
+    }
+
+    internal struct PatcherResource
+    {
+        public string Name;
+        public byte[] Bytes;
+
+        public PatcherResource(string Name, byte[] Bytes)
+        {
+            this.Name = Name;
+            this.Bytes = Bytes;
         }
     }
 }
