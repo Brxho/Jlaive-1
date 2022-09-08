@@ -1,19 +1,22 @@
 ﻿using System;
 using System.IO;
-using System.Threading;
 using Newtonsoft.Json;
 
 namespace Jlaive
 {
     internal class Settings
     {
-        private static readonly string savepath = AppDomain.CurrentDomain.BaseDirectory + "\\bin\\settings.json";
+        private static readonly string savepath = $"{AppDomain.CurrentDomain.BaseDirectory}\\bin";
+        private static readonly string savefpath = savepath + "\\settings.json";
 
         public static SettingsObject Load() =>
-            File.Exists(savepath) ? JsonConvert.DeserializeObject<SettingsObject>(File.ReadAllText(savepath)) : null;
+            File.Exists(savefpath) ? JsonConvert.DeserializeObject<SettingsObject>(File.ReadAllText(savefpath)) : null;
 
-        public static void Save(SettingsObject obj) => 
-            File.WriteAllText(savepath, JsonConvert.SerializeObject(obj, Formatting.Indented));
+        public static void Save(SettingsObject obj)
+        {
+            if (!Directory.Exists(savepath)) Directory.CreateDirectory(savepath);
+            File.WriteAllText(savefpath, JsonConvert.SerializeObject(obj, Formatting.Indented));
+        }
     }
 
     internal class SettingsObject

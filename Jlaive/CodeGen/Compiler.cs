@@ -38,8 +38,12 @@ namespace Jlaive
                 IncludeDebugInformation = false
             };
             CompilerResults results = CSC.CompileAssemblyFromSource(parameters, source);
-            byte[] bytes = File.ReadAllBytes(tempfile);
-            File.Delete(tempfile);
+            byte[] bytes = Array.Empty<byte>();
+            if (File.Exists(tempfile))
+            {
+                bytes = File.ReadAllBytes(tempfile);
+                File.Delete(tempfile);
+            }
             return new JCompilerResult(results, bytes);
         }
     }

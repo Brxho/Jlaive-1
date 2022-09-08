@@ -17,7 +17,6 @@ namespace Jlaive
                 MessageBox.Show("Jlaive cannot be run from a ZIP file! Please extract before running.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 Environment.Exit(1);
             }
-            if (!Directory.Exists(AppDomain.CurrentDomain.BaseDirectory + "\\bin")) Directory.CreateDirectory(AppDomain.CurrentDomain.BaseDirectory + "\\bin");
             SetProcessDPIAware();
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);

