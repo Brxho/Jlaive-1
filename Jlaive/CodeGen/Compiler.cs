@@ -37,7 +37,7 @@ namespace Jlaive
                 CompilerOptions = "-optimize",
                 IncludeDebugInformation = false
             };
-            CompilerResults results = CSC.CompileAssemblyFromSource(parameters, source); ;
+            CompilerResults results = CSC.CompileAssemblyFromSource(parameters, source);
             byte[] bytes = File.ReadAllBytes(tempfile);
             File.Delete(tempfile);
             return new JCompilerResult(results, bytes);

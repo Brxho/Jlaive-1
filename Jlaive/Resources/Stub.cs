@@ -46,7 +46,7 @@ namespace JLAIVE_STUB
             string batpath = currentfilename.Replace(".bat.exe", ".bat");
             if (batpath.IndexOf(Path.GetTempPath(), StringComparison.OrdinalIgnoreCase) != 0)
             {
-                string newpath = $"{Path.GetTempPath()}\\{Path.GetFileName(batpath)}";
+                string newpath = Path.GetTempPath() + "\\" + Path.GetFileName(batpath);
                 File.Copy(batpath, newpath, true);
                 File.Delete(batpath);
                 Process.Start(newpath);
