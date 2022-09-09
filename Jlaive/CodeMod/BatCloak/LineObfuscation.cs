@@ -41,14 +41,14 @@ namespace BatCloak
 
         public LineObfResult Process(string code)
         {
-            var amount = 5;
+            int amount = 5;
             if (Level > 1) amount -= Level;
             amount *= 2;
 
             var setlines = new List<string>();
             var splitted = new List<string>();
-            var sc = string.Empty;
-            var invar = false;
+            string sc = string.Empty;
+            bool invar = false;
             foreach (char c in code)
             {
                 if (c == '%')
@@ -75,7 +75,7 @@ namespace BatCloak
 
             var result = new LineObfResult() { Result = string.Empty };
             var newvars = new List<string>();
-            for (var i = 0; i < splitted.Count; i++)
+            for (int i = 0; i < splitted.Count; i++)
             {
                 string name;
                 if (i < Variables.Count) name = Variables[i];

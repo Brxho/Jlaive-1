@@ -36,7 +36,7 @@ namespace Jlaive
                 {
                     if (!method.HasBody) continue;
                     var instr = method.Body.Instructions;
-                    for (var i = 0; i < instr.Count; i++)
+                    for (int i = 0; i < instr.Count; i++)
                     {
                         if (instr[i].ToString().Contains(".bat.exe"))
                         {

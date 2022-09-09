@@ -16,7 +16,7 @@ namespace Jlaive
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            var obj = Settings.Load();
+            SettingsObject obj = Settings.Load();
             if (obj != null) UnpackSettings(obj);
             UpdateKeys();
         }
@@ -70,7 +70,7 @@ namespace Jlaive
             log.Items.Clear();
 
             var stubgen = new StubGen(key, iv);
-            var payload = File.ReadAllBytes(input);
+            byte[] payload = File.ReadAllBytes(input);
             bool isnetasm = IsAssembly(input);
 
             if (isnetasm)
@@ -93,13 +93,13 @@ namespace Jlaive
                 Resources = bindedFiles.Items.Cast<string>().ToArray()
             };
             JCompilerResult result = compiler.Build(stub);
-            var stubbytes = result.AssemblyBytes;
+            byte[] stubbytes = result.AssemblyBytes;
             compiler = new Compiler
             {
                 References = new string[] { "mscorlib.dll", "System.Core.dll", "System.dll" }
             };
             result = compiler.Build(stub2);
-            var stubbytes2 = result.AssemblyBytes;
+            byte[] stubbytes2 = result.AssemblyBytes;
 
             log.Items.Add("Embedding resources...");
             var embeddedresources = new List<PatcherResource>() { new PatcherResource("JLAIVE_P", payload) };

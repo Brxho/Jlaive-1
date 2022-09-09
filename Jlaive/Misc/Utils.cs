@@ -9,7 +9,7 @@ namespace Jlaive
     {
         public static byte[] GetEmbeddedResource(string name)
         {
-            var asm = Assembly.GetExecutingAssembly();
+            Assembly asm = Assembly.GetExecutingAssembly();
             using (var ms = new MemoryStream())
             {
                 using (var stream = asm.GetManifestResourceStream(name))
@@ -22,7 +22,7 @@ namespace Jlaive
 
         public static string GetEmbeddedString(string name)
         {
-            var asm = Assembly.GetExecutingAssembly();
+            Assembly asm = Assembly.GetExecutingAssembly();
             using (var stream = new StreamReader(asm.GetManifestResourceStream(name)))
             {
                 return stream.ReadToEnd();

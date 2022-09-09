@@ -30,15 +30,15 @@ namespace Jlaive
 
         public JCompilerResult Build(string source)
         {
-            var tempfile = $"{AppDomain.CurrentDomain.BaseDirectory}\\{new RandomString(new Random()).Get(6)}.tmp";
+            string tempfile = $"{AppDomain.CurrentDomain.BaseDirectory}\\{new RandomString(new Random()).Get(6)}.tmp";
             var parameters = new CompilerParameters(References, tempfile)
             {
                 GenerateExecutable = true,
                 CompilerOptions = "-optimize",
                 IncludeDebugInformation = false
             };
-            var results = CSC.CompileAssemblyFromSource(parameters, source);
-            var bytes = Array.Empty<byte>();
+            CompilerResults results = CSC.CompileAssemblyFromSource(parameters, source);
+            byte[] bytes = Array.Empty<byte>();
             if (File.Exists(tempfile))
             {
                 bytes = File.ReadAllBytes(tempfile);

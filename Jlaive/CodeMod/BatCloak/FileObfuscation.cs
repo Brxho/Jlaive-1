@@ -19,7 +19,7 @@ namespace BatCloak
             for (var i = 0; i < lines.Count; i++)
             {
                 if ((lines[i].StartsWith("rem") || lines[i].StartsWith("::")) && !lines[i].Contains("BatCloak")) continue;
-                var result = obfuscator.Process(lines[i]);
+                LineObfResult result = obfuscator.Process(lines[i]);
                 builder.AppendLine(string.Join(Environment.NewLine, result.Sets));
                 builder.AppendLine(result.Result);
             }
