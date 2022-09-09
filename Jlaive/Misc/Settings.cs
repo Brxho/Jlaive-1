@@ -6,16 +6,16 @@ namespace Jlaive
 {
     internal class Settings
     {
-        private static readonly string savepath = $"{AppDomain.CurrentDomain.BaseDirectory}\\bin";
-        private static readonly string savefpath = savepath + "\\settings.json";
+        private static readonly string _savePath = $"{AppDomain.CurrentDomain.BaseDirectory}\\bin";
+        private static readonly string _savefPath = _savePath + "\\settings.json";
 
         public static SettingsObject Load() =>
-            File.Exists(savefpath) ? JsonConvert.DeserializeObject<SettingsObject>(File.ReadAllText(savefpath)) : null;
+            File.Exists(_savefPath) ? JsonConvert.DeserializeObject<SettingsObject>(File.ReadAllText(_savefPath)) : null;
 
         public static void Save(SettingsObject obj)
         {
-            if (!Directory.Exists(savepath)) Directory.CreateDirectory(savepath);
-            File.WriteAllText(savefpath, JsonConvert.SerializeObject(obj, Formatting.Indented));
+            if (!Directory.Exists(_savePath)) Directory.CreateDirectory(_savePath);
+            File.WriteAllText(_savefPath, JsonConvert.SerializeObject(obj, Formatting.Indented));
         }
     }
 

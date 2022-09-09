@@ -27,8 +27,8 @@ namespace Jlaive
         public static void Fix(ref byte[] input)
         {
             var module = ModuleDefMD.Load(input);
-            var replace = GetSystemMethod(typeof(string), "Replace", 1);
-            var getexecutingassembly = GetSystemMethod(typeof(Assembly), "GetExecutingAssembly");
+            MethodDef replace = GetSystemMethod(typeof(string), "Replace", 1);
+            MethodDef getexecutingassembly = GetSystemMethod(typeof(Assembly), "GetExecutingAssembly");
             foreach (var type in module.GetTypes())
             {
                 if (type.IsGlobalModuleType) continue;
