@@ -12,29 +12,30 @@ namespace Jlaive
     {
         public static void AddResources(ref byte[] input, PatcherResource[] resources)
         {
-            ModuleDefMD module = ModuleDefMD.Load(input);
-            foreach (PatcherResource resource in resources)
+            var module = ModuleDefMD.Load(input);
+            foreach (var resource in resources)
             {
                 module.Resources.Add(new EmbeddedResource(resource.Name, resource.Bytes));
             }
-            MemoryStream ms = new MemoryStream();
-            module.Write(ms);
-            input = ms.ToArray();
-            ms.Dispose();
+            using (var ms = new MemoryStream())
+            {
+                module.Write(ms);
+                input = ms.ToArray();
+            }
         }
 
         public static void Fix(ref byte[] input)
         {
-            ModuleDefMD module = ModuleDefMD.Load(input);
-            MethodDef replace = GetSystemMethod(typeof(string), "Replace", 1);
-            MethodDef getexecutingassembly = GetSystemMethod(typeof(Assembly), "GetExecutingAssembly");
-            foreach (TypeDef type in module.GetTypes())
+            var module = ModuleDefMD.Load(input);
+            var replace = GetSystemMethod(typeof(string), "Replace", 1);
+            var getexecutingassembly = GetSystemMethod(typeof(Assembly), "GetExecutingAssembly");
+            foreach (var type in module.GetTypes())
             {
                 if (type.IsGlobalModuleType) continue;
-                foreach (MethodDef method in type.Methods)
+                foreach (var method in type.Methods)
                 {
                     if (!method.HasBody) continue;
-                    IList<Instruction> instr = method.Body.Instructions;
+                    var instr = method.Body.Instructions;
                     for (var i = 0; i < instr.Count; i++)
                     {
                         if (instr[i].ToString().Contains(".bat.exe"))
@@ -66,24 +67,24 @@ namespace Jlaive
                     method.Body.SimplifyBranches();
                 }
             }
-            MemoryStream ms = new MemoryStream();
-            module.Write(ms);
-            input = ms.ToArray();
-            ms.Dispose();
+            using (var ms = new MemoryStream())
+            {
+                module.Write(ms);
+                input = ms.ToArray();
+            }
         }
 
         private static MethodDef GetSystemMethod(Type type, string name, int idx = 0)
         {
-            string filename = type.Module.FullyQualifiedName;
-            ModuleDefMD module = ModuleDefMD.Load(filename);
-            TypeDef[] types = module.GetTypes().ToArray();
-            List<MethodDef> methods = new List<MethodDef>();
-            foreach (TypeDef t in types)
+            var filename = type.Module.FullyQualifiedName;
+            var module = ModuleDefMD.Load(filename);
+            var types = module.GetTypes();
+            var methods = new List<MethodDef>();
+            foreach (var t in types)
             {
                 if (t.Name != type.Name) continue;
                 foreach (var m in t.Methods)
                 {
-
                     if (m.Name != name) continue;
                     methods.Add(m);
                 }

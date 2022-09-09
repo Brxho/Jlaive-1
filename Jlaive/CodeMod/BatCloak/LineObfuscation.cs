@@ -1,10 +1,10 @@
 ﻿// Modified https://gitlab.com/ch2sh/BatCloak
 
-using Jlaive;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Jlaive;
 
 namespace BatCloak
 {
@@ -20,35 +20,35 @@ namespace BatCloak
         public int Level { get; set; }
         public string Boilerplate { get; }
 
-        private string setvar { get; }
-        private string equalsvar { get; }
-        private Random rng { get; }
-        private RandomString rngstr { get; }
+        private string _setvar { get; }
+        private string _equalsvar { get; }
+        private Random _rng { get; }
+        private RandomString _rngStr { get; }
 
         public LineObfuscation(int level)
         {
             Variables = new List<string>();
             Level = level;
-            rng = new Random();
-            rngstr = new RandomString(rng);
-            setvar = rngstr.Get(4);
-            equalsvar = rngstr.Get(4);
-            StringBuilder builder = new StringBuilder();
-            builder.AppendLine($"set \"{setvar}=set \"");
-            builder.AppendLine($"%{setvar}%\"{equalsvar}==\"");
+            _rng = new Random();
+            _rngStr = new RandomString(_rng);
+            _setvar = _rngStr.Get(4);
+            _equalsvar = _rngStr.Get(4);
+            var builder = new StringBuilder();
+            builder.AppendLine($"set \"{_setvar}=set \"");
+            builder.AppendLine($"%{_setvar}%\"{_equalsvar}==\"");
             Boilerplate = builder.ToString();
         }
 
         public LineObfResult Process(string code)
         {
-            int amount = 5;
+            var amount = 5;
             if (Level > 1) amount -= Level;
             amount *= 2;
 
-            List<string> setlines = new List<string>();
-            List<string> splitted = new List<string>();
-            string sc = string.Empty;
-            bool invar = false;
+            var setlines = new List<string>();
+            var splitted = new List<string>();
+            var sc = string.Empty;
+            var invar = false;
             foreach (char c in code)
             {
                 if (c == '%')
@@ -73,22 +73,22 @@ namespace BatCloak
             }
             splitted.Add(sc);
 
-            LineObfResult result = new LineObfResult() { Result = string.Empty };
-            List<string> newvars = new List<string>();
-            for (int i = 0; i < splitted.Count; i++)
+            var result = new LineObfResult() { Result = string.Empty };
+            var newvars = new List<string>();
+            for (var i = 0; i < splitted.Count; i++)
             {
                 string name;
                 if (i < Variables.Count) name = Variables[i];
                 else
                 {
-                    name = rngstr.Get(10);
+                    name = _rngStr.Get(10);
                     newvars.Add(name);
                 }
-                setlines.Add($"%{setvar}%\"{name}%{equalsvar}%{splitted[i]}\"");
+                setlines.Add($"%{_setvar}%\"{name}%{_equalsvar}%{splitted[i]}\"");
                 result.Result += $"%{name}%";
             }
             Variables.AddRange(newvars);
-            result.Sets = setlines.OrderBy(x => rng.Next()).ToArray();
+            result.Sets = setlines.OrderBy(x => _rng.Next()).ToArray();
             return result;
         }
     }

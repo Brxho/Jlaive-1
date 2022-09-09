@@ -21,13 +21,13 @@ namespace Jlaive
 
     internal class SettingsObject
     {
-        public string inputFile { get; set; }
-        public bool antiDebug { get; set; }
-        public bool antiVM { get; set; }
-        public bool selfDelete { get; set; }
-        public bool hidden { get; set; }
-        public bool runas { get; set; }
-        public bool apiUnhook { get; set; }
-        public string[] bindedFiles { get; set; }
+        public string InputFile { get; set; }
+        public bool AntiDebug { get; set; }
+        public bool AntiVM { get; set; }
+        public bool SelfDelete { get; set; }
+        public bool Hidden { get; set; }
+        public bool Runas { get; set; }
+        public bool ApiUnhook { get; set; }
+        public string[] BindedFiles { get; set; }
     }
 }

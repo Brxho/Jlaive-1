@@ -9,50 +9,50 @@ namespace Jlaive
     {
         public static byte[] GetEmbeddedResource(string name)
         {
-            Assembly asm = Assembly.GetExecutingAssembly();
-            MemoryStream ms = new MemoryStream();
-            Stream stream = asm.GetManifestResourceStream(name);
-            stream.CopyTo(ms);
-            stream.Dispose();
-            byte[] ret = ms.ToArray();
-            ms.Dispose();
-            return ret;
+            var asm = Assembly.GetExecutingAssembly();
+            using (var ms = new MemoryStream())
+            {
+                using (var stream = asm.GetManifestResourceStream(name))
+                {
+                    stream.CopyTo(ms);
+                    return ms.ToArray();
+                }
+            }
         }
 
         public static string GetEmbeddedString(string name)
         {
-            Assembly asm = Assembly.GetExecutingAssembly();
-            StreamReader stream = new StreamReader(asm.GetManifestResourceStream(name));
-            string ret = stream.ReadToEnd();
-            stream.Close();
-            stream.Dispose();
-            return ret;
+            var asm = Assembly.GetExecutingAssembly();
+            using (var stream = new StreamReader(asm.GetManifestResourceStream(name)))
+            {
+                return stream.ReadToEnd();
+            }
         }
 
         public static byte[] Encrypt(byte[] input, byte[] key, byte[] iv)
         {
-            AesManaged aes = new AesManaged
+            using (var aes = new AesManaged { Mode = CipherMode.CBC, Padding = PaddingMode.PKCS7 })
             {
-                Mode = CipherMode.CBC,
-                Padding = PaddingMode.PKCS7
-            };
-            ICryptoTransform encryptor = aes.CreateEncryptor(key, iv);
-            byte[] encrypted = encryptor.TransformFinalBlock(input, 0, input.Length);
-            encryptor.Dispose();
-            aes.Dispose();
-            return encrypted;
+                using (var encryptor = aes.CreateEncryptor(key, iv))
+                {
+                    return encryptor.TransformFinalBlock(input, 0, input.Length);
+                }
+            }
         }
 
         public static byte[] Compress(byte[] bytes)
         {
-            MemoryStream msi = new MemoryStream(bytes);
-            MemoryStream mso = new MemoryStream();
-            GZipStream gs = new GZipStream(mso, CompressionMode.Compress);
-            msi.CopyTo(gs);
-            gs.Dispose();
-            mso.Dispose();
-            msi.Dispose();
-            return mso.ToArray();
+            using (var msi = new MemoryStream(bytes))
+            {
+                using (var mso = new MemoryStream())
+                {
+                    using (var gs = new GZipStream(mso, CompressionMode.Compress))
+                    {
+                        msi.CopyTo(gs);
+                        return mso.ToArray();
+                    }
+                }
+            }
         }
 
         public static bool IsAssembly(string path)

